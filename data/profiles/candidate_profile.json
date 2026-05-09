@@ -1,0 +1,35 @@
+{
+    "full_name": "Dante A. Ruiz",
+    "current_title": "Senior Service Delivery Leader",
+    "years_experience": "15+ years",
+    "leadership_level": "Senior management",
+    "industries": [
+        "Telecommunications",
+        "Subsea / Submarine Cable",
+        "Data Center / Colocation",
+        "Network Operations / Backbone",
+        "Carrier & Enterprise Services"
+    ],
+    "skills": [
+        "Network Infrastructure & Operations (Backbone, Subsea, Capacity, IP)",
+        "Data Center & Colocation Infrastructure",
+        "Service Delivery & SLA Management",
+        "Program & Project Lifecycle Management",
+        "Incident Management & Root Cause Analysis",
+        "Process Automation",
+        "Data Analysis & KPI Dashboards (Excel, SQL)",
+        "Vendor & Partner Management",
+        "Cross-functional Leadership & Stakeholder Communication",
+        "AI: Agentic AI, RAG, LLM Prompting, AI Governance"
+    ],
+    "certifications": [],
+    "languages": [
+        "Spanish (Native)",
+        "English (Full Professional)",
+        "Portuguese (Intermediate / Limited Working)"
+    ],
+    "ai_experience": "Upskilling in Agentic and Generative AI (MIT Professional Education, in progress). Practical familiarity with Agentic AI approaches, RAG, LLM prompting, and AI governance; applying AI-driven insights and automation to network service delivery and operations.",
+    "telecom_experience": "15+ years in global telecommunications across subsea/submarine cable, backbone, capacity and IP networks, data center and colocation operations, and carrier/enterprise service delivery. Experience includes NOC supervision, network provisioning, and global service delivery governance.",
+    "management_experience": "Managed and coached multidisciplinary teams (10+), led global service delivery governance, coordinated 50+ vendors/partners, owned technical escalations and RCA processes, and drove cross-functional programs to improve SLA compliance and reduce incidents.",
+    "summary": "Senior Service Delivery Leader with 15+ years driving global network operations and infrastructure programs across subsea, backbone, and data center environments. Proven record delivering >99% SLA performance, reducing incidents through automation and process re-engineering, and leading cross-functional teams and large vendor ecosystems. Currently upskilling in applied generative and agentic AI to integrate AI-driven automation and insights into network service delivery."
+}
