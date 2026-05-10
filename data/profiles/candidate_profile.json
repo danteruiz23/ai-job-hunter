@@ -1,46 +1,38 @@
 {
     "full_name": "Dante A. Ruiz",
     "current_title": "Senior Service Delivery Manager",
-    "years_experience": "30+ years",
-    "leadership_level": "Senior (Service Delivery Leader / Manager)",
+    "years_experience": "15+ years",
+    "leadership_level": "Senior-level (management)",
     "industries": [
         "Telecommunications",
-        "Submarine Cable / Subsea",
-        "Data Center / Colocation",
-        "Network Infrastructure & Operations",
-        "Carrier & Enterprise Services"
+        "Submarine cable / Subsea",
+        "Data center / Colocation",
+        "Network operations",
+        "Carrier & enterprise services"
     ],
     "skills": [
-        "Global Network Operations",
-        "Subsea & Backbone Networks",
-        "Capacity & IP Services",
-        "Data Center & Colocation Infrastructure",
-        "Service Delivery Governance",
-        "SLA Management (>99% performance)",
-        "Incident Management & RCA",
-        "Process Automation",
-        "Program Lifecycle Management",
-        "Vendor & Partner Management",
-        "Cross-functional Leadership",
-        "Data Analysis & KPI Dashboards (Excel, SQL)",
-        "Site Reliability Engineering (SRE) collaboration",
-        "Executive Communication & Stakeholder Alignment",
-        "Capacity Planning"
+        "Network infrastructure & operations (backbone, subsea, capacity, IP)",
+        "Data center & colocation infrastructure",
+        "Program & service delivery management",
+        "Process automation",
+        "Data analysis & KPI dashboards (Excel, SQL)",
+        "SLA management & incident reduction",
+        "Risk management & root cause analysis",
+        "Vendor & partner management",
+        "Cross-functional leadership (Engineering, SRE, Operations, Product)",
+        "Executive communication & stakeholder alignment",
+        "Agentic AI, RAG, LLM prompting, AI governance"
     ],
     "certifications": [
-        "MIT Professional Education \u2014 Applied Generative AI for Digital Transformation (in progress, expected 2026)",
-        "MBA, Innovation & Technology \u2014 UNED, Spain",
-        "MBA, Telef\u00f3nica Corporate University \u2014 Barcelona",
-        "Postgraduate, Telecommunications Business \u2014 UPC Barcelona",
-        "B.S., Electronic/Electrical Engineering \u2014 Pontifical Catholic University of Peru"
+        "MIT Professional Education - Applied Generative AI for Digital Transformation (in progress)"
     ],
     "languages": [
         "Spanish (Native)",
-        "English (Full Professional)",
+        "English (Full professional)",
         "Portuguese (Intermediate)"
     ],
-    "ai_experience": "Upskilling in Agentic AI and Generative AI through MIT Professional Education; practical familiarity with Agentic AI concepts, Retrieval-Augmented Generation (RAG), LLM prompting, and AI governance applied to network service delivery and automation.",
-    "telecom_experience": "Extensive (30+ years) experience across submarine cable systems, backbone networks, global PoPs, capacity/IP services, NOC operations, and data center infrastructure with global carrier and enterprise customers.",
-    "management_experience": "Managed and coached multidisciplinary teams (10+), led global service delivery governance, coordinated 50+ vendors/partners, owned technical escalations and RCA, and delivered program-level planning, execution and optimization to meet SLAs and reduce incidents.",
-    "summary": "Senior Service Delivery Leader/Manager with 30+ years of experience in global telecommunications, specializing in subsea/submarine cable, backbone and data center operations. Proven track record delivering high-reliability services (>99% SLA performance) and driving operational improvements (incident reductions up to 80%) through process re-engineering and automation. Strong cross-functional leadership, vendor management and executive communication skills, now adding Agentic and Generative AI expertise to introduce AI-driven insights and automation into network service delivery."
+    "ai_experience": "Upskilling in Agentic and Generative AI via MIT Professional Education; practical knowledge of Agentic AI concepts, RAG, LLM prompting and AI governance with intent to apply AI-driven insights to network service delivery and automation.",
+    "telecom_experience": "Extensive experience leading global telecommunications operations across subsea/submarine cable systems, backbone, capacity/IP services, data centers and carrier/enterprise networks; managed global service delivery and NOC operations at Telxius and Telef\u00f3nica.",
+    "management_experience": "Managed and coached multidisciplinary teams (10+ Service Delivery professionals), coordinated 50+ global vendors/partners, led cross-functional programs between engineering/SRE/operations, handled technical escalations and executive reporting to drive SLA and reliability improvements.",
+    "summary": "Senior Service Delivery Leader with 15+ years driving global network operations, infrastructure programs and cross-functional initiatives across subsea, backbone and data center environments. Proven track record delivering >99% SLA performance and significant incident reduction through process re-engineering and automation. Strong technical foundation in telecom and co-location infrastructure, combined with executive communication, vendor management and emerging AI competency to bring data-driven, AI-enabled improvements to network service delivery."
 }

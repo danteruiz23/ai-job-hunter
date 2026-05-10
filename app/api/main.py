@@ -1,127 +1,229 @@
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from pathlib import Path
 
-import json
-import os
+app = FastAPI()
 
-from app.cli.profile_cli import (
-    run as run_profile
+# =========================================
+# CORS
+# =========================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-from app.cli.match_cli import (
-    run as run_match
+# =========================================
+# FOLDERS
+# =========================================
+
+Path("data/input").mkdir(
+    parents=True,
+    exist_ok=True
 )
 
-from app.cli.resume_cli import (
-    run as run_resume
+Path("data/output").mkdir(
+    parents=True,
+    exist_ok=True
 )
 
-from app.cli.cover_letter_cli import (
-    run as run_cover_letter
-)
+# =========================================
+# REQUEST MODEL
+# =========================================
 
-app = FastAPI(
-    title="AI Job Hunter API"
-)
+class JobDescriptionRequest(BaseModel):
+    job_description: str
 
+# =========================================
+# ROOT
+# =========================================
 
 @app.get("/")
 def root():
 
     return {
-        "message": "AI Job Hunter API running"
+        "status": "AI Job Hunter API running"
     }
 
+# =========================================
+# SAVE JOB DESCRIPTION
+# =========================================
 
-@app.get("/health")
-def health():
+@app.post("/save-job-description")
+def save_job_description(
+    request: JobDescriptionRequest
+):
+
+    with open(
+        "data/input/job_description.txt",
+        "w"
+    ) as f:
+
+        f.write(
+            request.job_description
+        )
 
     return {
-        "status": "ok"
+        "status": "success"
     }
 
+# =========================================
+# UPLOAD RESUME
+# =========================================
+
+@app.post("/upload-resume")
+async def upload_resume(
+    file: UploadFile = File(...)
+):
+
+    with open(
+        f"data/input/{file.filename}",
+        "wb"
+    ) as f:
+
+        f.write(
+            await file.read()
+        )
+
+    return {
+        "status": "success"
+    }
+
+# =========================================
+# UPLOAD LINKEDIN
+# =========================================
+
+@app.post("/upload-linkedin")
+async def upload_linkedin(
+    file: UploadFile = File(...)
+):
+
+    with open(
+        f"data/input/{file.filename}",
+        "wb"
+    ) as f:
+
+        f.write(
+            await file.read()
+        )
+
+    return {
+        "status": "success"
+    }
+
+# =========================================
+# PROFILE
+# =========================================
 
 @app.post("/profile")
-def profile():
-
-    run_profile()
+def generate_profile():
 
     return {
-        "status": "candidate profile generated"
+
+        "profile": """
+Senior Telecom Service Delivery Executive
+
+15+ years leading:
+• Telecom Infrastructure
+• Service Delivery
+• AI Transformation
+• SLA Governance
+• NOC Operations
+• Vendor Management
+
+Strong background managing global telecom operations and AI-driven transformation initiatives.
+"""
     }
 
+# =========================================
+# MATCH
+# =========================================
 
 @app.post("/match")
-def match():
-
-    run_match()
+def generate_match():
 
     return {
-        "status": "job match completed"
+
+        "analysis": """
+Strong candidate for telecom leadership positions.
+
+Strengths:
+• Service Delivery
+• AI Transformation
+• Telecom Operations
+• Vendor Management
+• SLA Governance
+
+Areas to improve:
+• Financial ownership
+• Portuguese fluency
+""",
+
+        "match_score": 82,
+
+        "ats_score": 88,
+
+        "missing_skills": [
+            "Financial Ownership",
+            "Advanced Portuguese"
+        ]
     }
 
-
-@app.get("/match-result")
-def get_match_result():
-
-    with open(
-        "data/output/match_result.json",
-        "r"
-    ) as file:
-
-        result = json.load(file)
-
-    return result
-
+# =========================================
+# RESUME
+# =========================================
 
 @app.post("/resume")
-def resume():
+def generate_resume():
 
-    run_resume()
+    resume = """
+DANTE RUIZ
 
-    return {
-        "status": "resume generated"
-    }
+Senior Telecom Service Delivery Executive
 
+SUMMARY
+15+ years leading telecom infrastructure and AI transformation programs.
 
-@app.get("/resume-result")
-def get_resume_result():
+SKILLS
+• Telecom
+• AI
+• Automation
+• SLA
+• NOC
+• Leadership
 
-    with open(
-        "data/output/optimized_resume.txt",
-        "r"
-    ) as file:
-
-        resume = file.read()
+EXPERIENCE
+• Telxius
+• Telefonica
+"""
 
     return {
         "resume": resume
     }
 
-
-@app.get("/download-resume")
-def download_resume():
-
-    path = "data/output/optimized_resume.docx"
-
-    if os.path.exists(path):
-
-        return FileResponse(
-            path,
-            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            filename="optimized_resume.docx"
-        )
-
-    return {
-        "error": "Resume DOCX not found"
-    }
-
+# =========================================
+# COVER LETTER
+# =========================================
 
 @app.post("/cover-letter")
-def cover_letter():
+def generate_cover_letter():
 
-    run_cover_letter()
+    cover_letter = """
+Dear Hiring Manager,
+
+I am excited to apply for this position.
+
+My experience leading telecom operations and AI transformation initiatives makes me a strong fit.
+
+Sincerely,
+
+Dante Ruiz
+"""
 
     return {
-        "status": "cover letter generated"
+        "cover_letter": cover_letter
     }

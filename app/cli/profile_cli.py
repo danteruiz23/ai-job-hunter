@@ -1,39 +1,48 @@
-from app.agents.profile_builder import (
-    build_candidate_profile
-)
+import json
+import os
 
 from app.agents.profile_extractor import (
     extract_candidate_data
 )
 
-import json
-
 
 def run():
 
-    profile = build_candidate_profile()
-
-    candidate_data = extract_candidate_data(
-        profile
+    print(
+        "Loading resume..."
     )
 
-    print(candidate_data)
+    with open(
+        "data/input/resume.txt",
+        "r"
+    ) as file:
+
+        resume_text = file.read()
+
+    print(
+        "Extracting candidate profile..."
+    )
+
+    candidate_profile = extract_candidate_data(
+        resume_text
+    )
+
+    os.makedirs(
+        "data/output",
+        exist_ok=True
+    )
 
     with open(
-        "data/profiles/candidate_profile.json",
+        "data/output/candidate_profile.json",
         "w"
     ) as file:
 
         json.dump(
-            candidate_data,
+            candidate_profile,
             file,
-            indent=4
+            indent=2
         )
 
     print(
-        "\nCandidate profile saved."
+        "Candidate profile saved."
     )
-
-
-if __name__ == "__main__":
-    run()

@@ -5,12 +5,12 @@ client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
-def generate_resume(profile, match_analysis, job_description):
+def generate_cover_letter(profile, match_analysis, job_description):
 
     prompt = f"""
-Create a modern executive ATS-optimized resume.
+Write an executive-level cover letter.
 
-CANDIDATE PROFILE:
+PROFILE:
 {profile}
 
 MATCH ANALYSIS:
@@ -21,25 +21,21 @@ JOB DESCRIPTION:
 
 Requirements:
 
-- Executive Summary
-- Core Skills
-- Professional Experience
-- Leadership
-- AI & Automation Expertise
-- Achievements with metrics
-- Certifications
-- Languages
+- strong opening
+- leadership tone
+- measurable achievements
+- concise executive language
+- business impact
+- AI transformation positioning
+- telecom leadership positioning
 
-Use modern ATS-friendly formatting.
+Avoid generic AI wording.
 
-Make the resume:
-- recruiter-ready
-- executive-level
-- concise
+Make it:
 - professional
-- impactful
-
-Avoid generic wording.
+- persuasive
+- modern
+- recruiter-ready
 """
 
     response = client.chat.completions.create(
