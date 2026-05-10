@@ -1,4 +1,5 @@
 import json
+import os
 
 from app.agents.match_engine import (
     match_candidate_to_job
@@ -33,8 +34,12 @@ def run():
     )
 
     print("\nMATCH RESULT:\n")
-
     print(result)
+
+    os.makedirs(
+        "data/output",
+        exist_ok=True
+    )
 
     with open(
         "data/output/match_result.json",
@@ -51,4 +56,5 @@ def run():
 
 
 if __name__ == "__main__":
+
     run()

@@ -1,4 +1,8 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+
+import json
+import os
 
 from app.cli.profile_cli import (
     run as run_profile
@@ -17,8 +21,7 @@ from app.cli.cover_letter_cli import (
 )
 
 app = FastAPI(
-    title="AI Job Hunter API",
-    version="1.0.0"
+    title="AI Job Hunter API"
 )
 
 
@@ -26,7 +29,15 @@ app = FastAPI(
 def root():
 
     return {
-        "message": "AI Job Hunter API"
+        "message": "AI Job Hunter API running"
+    }
+
+
+@app.get("/health")
+def health():
+
+    return {
+        "status": "ok"
     }
 
 
@@ -50,6 +61,19 @@ def match():
     }
 
 
+@app.get("/match-result")
+def get_match_result():
+
+    with open(
+        "data/output/match_result.json",
+        "r"
+    ) as file:
+
+        result = json.load(file)
+
+    return result
+
+
 @app.post("/resume")
 def resume():
 
@@ -60,6 +84,39 @@ def resume():
     }
 
 
+@app.get("/resume-result")
+def get_resume_result():
+
+    with open(
+        "data/output/optimized_resume.txt",
+        "r"
+    ) as file:
+
+        resume = file.read()
+
+    return {
+        "resume": resume
+    }
+
+
+@app.get("/download-resume")
+def download_resume():
+
+    path = "data/output/optimized_resume.docx"
+
+    if os.path.exists(path):
+
+        return FileResponse(
+            path,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            filename="optimized_resume.docx"
+        )
+
+    return {
+        "error": "Resume DOCX not found"
+    }
+
+
 @app.post("/cover-letter")
 def cover_letter():
 
@@ -67,12 +124,4 @@ def cover_letter():
 
     return {
         "status": "cover letter generated"
-    }
-
-
-@app.get("/health")
-def health():
-
-    return {
-        "status": "ok"
     }
