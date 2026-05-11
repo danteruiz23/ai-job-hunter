@@ -205,6 +205,26 @@ def _save_upload_path(
     # Ignore user-provided filenames entirely (prevents path traversal and messy names).
     return Path("data/input") / f"{base_name}{suffix}"
 
+
+ALLOWED_INPUT_NAMES = frozenset(
+    {
+        "job_description.txt",
+        "resume.pdf",
+        "resume.docx",
+        "resume.txt",
+        "linkedin.pdf",
+        ".gitkeep",
+    }
+)
+
+CANDIDATE_UPLOAD_NAMES = (
+    "resume.pdf",
+    "resume.docx",
+    "resume.txt",
+    "linkedin.pdf",
+)
+
+
 def load_candidate_data():
 
     input_folder = Path("data/input")
@@ -296,6 +316,60 @@ def save_job_description(
     return {
         "status": "success"
     }
+
+
+@app.post("/cleanup-input-extras")
+def cleanup_input_extras():
+    """Remove files in data/input that are not the canonical uploads or job description."""
+
+    input_dir = Path("data/input")
+    input_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    removed: list[str] = []
+
+    for path in sorted(input_dir.iterdir()):
+
+        if not path.is_file():
+
+            continue
+
+        if path.name in ALLOWED_INPUT_NAMES:
+
+            continue
+
+        path.unlink()
+        removed.append(path.name)
+
+    return {
+        "status": "success",
+        "removed": removed,
+    }
+
+
+@app.post("/clear-candidate-files")
+def clear_candidate_files():
+    """Delete resume.* and linkedin.pdf only (keeps job_description.txt and .gitkeep)."""
+
+    input_dir = Path("data/input")
+    removed: list[str] = []
+
+    for name in CANDIDATE_UPLOAD_NAMES:
+
+        p = input_dir / name
+
+        if p.is_file():
+
+            p.unlink()
+            removed.append(name)
+
+    return {
+        "status": "success",
+        "removed": removed,
+    }
+
 
 # =========================================
 # UPLOAD RESUME

@@ -118,12 +118,12 @@ st.markdown("""
     --sidebar-upload-pill-bg: #1e3a8a;     /* blue-900 — selected file row */
     --sidebar-upload-btn: #1d4ed8;        /* blue-700 — Browse */
     --sidebar-upload-btn-hover: #2563eb;   /* blue-600 */
-    /* Job description textarea — orange theme */
-    --jd-bg: #431407;           /* orange-950 */
-    --jd-border: #ea580c;       /* orange-600 */
-    --jd-text: #fdba74;         /* orange-300 */
-    --jd-placeholder: #fb923c;  /* orange-400 */
-    --jd-caret: #fed7aa;        /* orange-200 */
+    /* Job description textarea — light blue / sky theme */
+    --jd-bg: #0c4a6e;           /* sky-900 */
+    --jd-border: #38bdf8;       /* sky-400 */
+    --jd-text: #bae6fd;         /* sky-200 */
+    --jd-placeholder: #7dd3fc;  /* sky-300 */
+    --jd-caret: #e0f2fe;        /* sky-100 */
     --font-ui: "Nunito", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
     --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
 }
@@ -186,7 +186,7 @@ section[data-testid="stSidebar"] div:has([data-testid="stFileUploader"]) label {
     color: var(--sidebar-upload-text-strong) !important;
 }
 
-/* Job description label — orange to match textarea (wins over default widget label) */
+/* Job description label — sky / light blue to match textarea */
 section[data-testid="stSidebar"] div:has(.stTextArea) [data-testid="stWidgetLabel"] {
     color: var(--jd-text) !important;
 }
@@ -196,7 +196,7 @@ section[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
     color: var(--sidebar-upload-text-strong) !important;
 }
 
-/* Job description only: orange text on dark orange panel (.stTextArea = streamlit text_area) */
+/* Job description only: light text on sky panel (.stTextArea = streamlit text_area) */
 section[data-testid="stSidebar"] .stTextArea textarea {
     min-height: 280px !important;
     background-color: var(--jd-bg) !important;
@@ -587,6 +587,93 @@ with st.sidebar:
             )
         else:
             st.error(response.text)
+
+    with st.expander(
+        "🧹 Clean up files on server",
+        expanded=False,
+    ):
+
+        st.caption(
+            "The API only uses fixed names: **resume.pdf|docx|txt**, "
+            "**linkedin.pdf**, and **job_description.txt**. "
+            "Old uploads (e.g. extra .docx names) are ignored for saving "
+            "but can still be read until you remove them."
+        )
+
+        if st.button(
+            "Remove extra files in data/input",
+            help=(
+                "Deletes anything that is not job description, "
+                "canonical resume/LinkedIn, or .gitkeep."
+            ),
+        ):
+
+            r = api_post("/cleanup-input-extras")
+
+            if r.status_code != 200:
+
+                st.error(r.text)
+
+            else:
+
+                data = response_json_or_none(r) or {}
+
+                removed = data.get(
+                    "removed",
+                    [],
+                )
+
+                if removed:
+
+                    st.success(
+                        "Removed: "
+                        + ", ".join(removed)
+                    )
+
+                else:
+
+                    st.info(
+                        "No extra files to remove."
+                    )
+
+        if st.button(
+            "Clear resume & LinkedIn from server",
+            help=(
+                "Deletes resume.pdf, resume.docx, resume.txt, "
+                "and linkedin.pdf. Re-upload to run AI again."
+            ),
+        ):
+
+            r = api_post("/clear-candidate-files")
+
+            if r.status_code != 200:
+
+                st.error(r.text)
+
+            else:
+
+                st.session_state["has_resume"] = False
+                st.session_state["has_linkedin"] = False
+                st.session_state["resume_uploaded_name"] = ""
+                st.session_state["linkedin_uploaded_name"] = ""
+
+                data = response_json_or_none(r) or {}
+
+                removed = data.get(
+                    "removed",
+                    [],
+                )
+
+                st.success(
+                    "Cleared: "
+                    + (
+                        ", ".join(removed)
+                        if removed
+                        else "nothing was on disk"
+                    )
+                )
+
+                st.rerun()
 
     st.markdown("---")
 
