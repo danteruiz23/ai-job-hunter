@@ -1,4 +1,7 @@
 import os
+import sys
+
+from pathlib import Path
 
 import requests
 import streamlit as st
@@ -8,12 +11,75 @@ from streamlit.components.v1 import html as st_html
 
 load_dotenv()
 
-API_URL = (
-    os.getenv(
-        "API_URL",
-        "http://127.0.0.1:8000",
-    ).rstrip("/")
-)
+_frontend_dir = Path(
+    __file__,
+).resolve().parent
+
+if str(_frontend_dir) not in sys.path:
+
+    sys.path.insert(
+        0,
+        str(_frontend_dir),
+    )
+
+from i18n import text as ui_text
+
+from theme_styles import build_stylesheet
+
+
+def _resolve_api_url() -> str:
+
+    explicit = (
+        os.getenv(
+            "API_URL",
+            "",
+        )
+        .strip()
+        .rstrip("/")
+    )
+
+    if explicit:
+
+        return explicit
+
+    hp = (
+        os.getenv(
+            "API_INTERNAL_HOSTPORT",
+            "",
+        )
+        .strip()
+    )
+
+    if hp:
+
+        if hp.startswith(
+            (
+                "http://",
+                "https://",
+            ),
+        ):
+
+            return hp.rstrip("/")
+
+        return f"http://{hp}".rstrip("/")
+
+    return "http://127.0.0.1:8000"
+
+
+def t(
+    key,
+):
+
+    return ui_text(
+        st.session_state.get(
+            "lang",
+            "en",
+        ),
+        key,
+    )
+
+
+API_URL = _resolve_api_url()
 
 
 def _api_headers():
@@ -65,11 +131,19 @@ def api_post(
 
     except requests.RequestException as exc:
 
+        _lang = st.session_state.get(
+            "lang",
+            "en",
+        )
+
         st.error(
-            "Could not reach the API at "
-            f"`{API_URL}`. Start it with: "
-            "`python -m uvicorn app.api.main:app --reload`\n\n"
-            f"Details: {exc}"
+            ui_text(
+                _lang,
+                "api_unreachable",
+            ).format(
+                url=API_URL,
+                exc=exc,
+            )
         )
 
         st.stop()
@@ -94,359 +168,14 @@ def response_json_or_none(
 st.set_page_config(
     page_title="AI Job Hunter",
     page_icon="🚀",
-    layout="wide"
+    layout="wide",
 )
 
 # ======================================================
-# CSS
+# SESSION STATE DEFAULTS (language before UI strings)
 # ======================================================
 
-st.markdown("""
-<style>
-@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap");
-
-:root {
-    --accent: #14B8A6;         /* teal */
-    --accent-hover: #0D9488;   /* teal-600 */
-    --accent-soft: #2DD4BF;    /* teal-400 */
-    /* Upload Resume / LinkedIn PDF — blue theme */
-    --sidebar-upload-bg: #172554;       /* blue-950 */
-    --sidebar-upload-border: #3b82f6; /* blue-500 */
-    --sidebar-upload-text: #93c5fd;    /* blue-300 — icons / secondary */
-    --sidebar-upload-text-strong: #60a5fa; /* blue-400 — labels & filenames */
-    --sidebar-upload-text-muted: #bfdbfe;  /* blue-200 — file size */
-    --sidebar-upload-pill-bg: #1e3a8a;     /* blue-900 — selected file row */
-    --sidebar-upload-btn: #1d4ed8;        /* blue-700 — Browse */
-    --sidebar-upload-btn-hover: #2563eb;   /* blue-600 */
-    /* Job description textarea — light blue / sky theme */
-    --jd-bg: #0c4a6e;           /* sky-900 */
-    --jd-border: #38bdf8;       /* sky-400 */
-    --jd-text: #bae6fd;         /* sky-200 */
-    --jd-placeholder: #7dd3fc;  /* sky-300 */
-    --jd-caret: #e0f2fe;        /* sky-100 */
-    --font-ui: "Nunito", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
-    --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
-}
-
-/* Cozy, friendly base typography */
-html, body {
-    font-family: var(--font-ui);
-}
-
-.stApp {
-    background-color: #020817;
-    color: white;
-    font-family: var(--font-ui) !important;
-    font-size: 17px;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-.stApp textarea,
-.stApp input,
-.stApp button,
-.stApp [data-baseweb="tab"] {
-    font-family: var(--font-ui) !important;
-}
-
-/* Sidebar ~1/3 of viewport for more room (job description, uploads) */
-section[data-testid="stSidebar"] {
-    width: 33.333vw !important;
-    min-width: 280px !important;
-    flex-shrink: 0 !important;
-    box-sizing: border-box !important;
-    background: linear-gradient(
-        180deg,
-        #0F172A,
-        #020617
-    );
-    border-right: 1px solid #1E293B;
-}
-
-section[data-testid="stSidebar"] > div:first-child {
-    width: 100% !important;
-}
-
-/* Sidebar copy (do NOT force white on labels/spans — breaks file upload widgets) */
-section[data-testid="stSidebar"] .stMarkdown,
-section[data-testid="stSidebar"] .stMarkdown p,
-section[data-testid="stSidebar"] .stMarkdown span {
-    color: #e2e8f0 !important;
-}
-
-section[data-testid="stSidebar"] h1,
-section[data-testid="stSidebar"] h2,
-section[data-testid="stSidebar"] h3 {
-    color: white !important;
-}
-
-/* Labels next to file uploaders (Streamlit puts label outside stFileUploader) */
-section[data-testid="stSidebar"] div:has([data-testid="stFileUploader"]) label {
-    color: var(--sidebar-upload-text-strong) !important;
-}
-
-/* Job description label — sky / light blue to match textarea */
-section[data-testid="stSidebar"] div:has(.stTextArea) [data-testid="stWidgetLabel"] {
-    color: var(--jd-text) !important;
-}
-
-/* Other sidebar widget labels (uploads) — blue */
-section[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-    color: var(--sidebar-upload-text-strong) !important;
-}
-
-/* Job description only: light text on sky panel (.stTextArea = streamlit text_area) */
-section[data-testid="stSidebar"] .stTextArea textarea {
-    min-height: 280px !important;
-    background-color: var(--jd-bg) !important;
-    color: var(--jd-text) !important;
-    border: 2px solid var(--jd-border) !important;
-    border-radius: 12px !important;
-    caret-color: var(--jd-caret) !important;
-}
-
-section[data-testid="stSidebar"] .stTextArea textarea::placeholder {
-    color: var(--jd-placeholder) !important;
-    opacity: 1 !important;
-}
-
-section[data-testid="stSidebar"] .stTextArea [data-baseweb="textarea"] {
-    background-color: var(--jd-bg) !important;
-    border-color: var(--jd-border) !important;
-}
-
-section[data-testid="stSidebar"] input[type="text"] {
-    background-color: #111827 !important;
-    color: white !important;
-    border: 1px solid #1E293B !important;
-}
-
-/* ---- File uploader: blue dropzones + readable text ---- */
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] {
-    background-color: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-}
-
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] section {
-    background-color: var(--sidebar-upload-bg) !important;
-    border: 2px solid var(--sidebar-upload-border) !important;
-    border-radius: 12px !important;
-}
-
-/* Inner dropzone / rows (Streamlit + Base Web vary by version) */
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"],
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > div,
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-baseweb="file-uploader"],
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-baseweb="file-uploader"] > div,
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] div[class*="fileUploader"] {
-    background-color: var(--sidebar-upload-bg) !important;
-    background-image: none !important;
-    border-color: var(--sidebar-upload-border) !important;
-    color: var(--sidebar-upload-text) !important;
-}
-
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] button {
-    background-color: var(--sidebar-upload-btn) !important;
-    border: 1px solid var(--sidebar-upload-border) !important;
-    color: #ffffff !important;
-}
-
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] button:hover {
-    background-color: var(--sidebar-upload-btn-hover) !important;
-}
-
-/* Uploader text: blue tones except Browse buttons */
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] *:not(button) {
-    color: var(--sidebar-upload-text-strong) !important;
-}
-
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] small,
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [class*="caption"],
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [class*="Caption"] {
-    color: var(--sidebar-upload-text-muted) !important;
-}
-
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] button {
-    color: #ffffff !important;
-}
-
-/* Selected file pill / filename (Streamlit versions vary) */
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stUploadedFile"] {
-    background-color: var(--sidebar-upload-pill-bg) !important;
-    border: 1px solid var(--sidebar-upload-border) !important;
-    border-radius: 12px !important;
-}
-
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stUploadedFile"],
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stUploadedFile"] *:not(button) {
-    color: var(--sidebar-upload-text-strong) !important;
-    -webkit-text-fill-color: var(--sidebar-upload-text-strong) !important;
-}
-
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stUploadedFile"] svg {
-    fill: var(--sidebar-upload-text) !important;
-}
-
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stUploadedFile"] small {
-    color: var(--sidebar-upload-text-muted) !important;
-    -webkit-text-fill-color: var(--sidebar-upload-text-muted) !important;
-}
-
-/* Base Web / inner rows sometimes stay white — force surface */
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-baseweb="typography"],
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] li,
-section[data-testid="stSidebar"] [data-testid="stFileUploader"] [role="listitem"] {
-    background-color: transparent !important;
-    color: var(--sidebar-upload-text-strong) !important;
-}
-
-h1, h2, h3 {
-    color: white !important;
-    font-family: var(--font-ui) !important;
-    letter-spacing: -0.02em;
-}
-
-h1 {
-    font-weight: 800 !important;
-    line-height: 1.15 !important;
-}
-
-h2, h3 {
-    font-weight: 700 !important;
-    line-height: 1.25 !important;
-}
-
-p, li {
-    font-family: var(--font-ui);
-    color: #CBD5E1;
-    line-height: 1.7;
-}
-
-/* Caption under title — softer, friendly */
-[data-testid="stCaptionContainer"] {
-    font-family: var(--font-ui) !important;
-    font-weight: 500 !important;
-    font-size: 1.05rem !important;
-    color: #94a3b8 !important;
-    line-height: 1.55 !important;
-}
-
-/* Keep code readable */
-.stCodeBlock,
-pre,
-code,
-.stMarkdown code {
-    font-family: var(--font-mono) !important;
-}
-
-/* BUTTONS */
-
-.stButton button {
-
-    background: linear-gradient(
-        135deg,
-        var(--accent),
-        #8B5CF6
-    );
-
-    color: white !important;
-
-    border: none;
-
-    border-radius: 12px;
-
-    font-weight: 700;
-
-    letter-spacing: 0.02em;
-
-    width: 100%;
-
-    height: 48px;
-
-    font-size: 16px;
-}
-
-.stButton button:hover {
-
-    background: linear-gradient(
-        135deg,
-        var(--accent-hover),
-        #7C3AED
-    );
-}
-
-/* FILE UPLOADER */
-
-[data-testid="stFileUploader"] {
-
-    background-color: #111827;
-
-    border-radius: 12px;
-
-    border: 1px solid #1E293B;
-
-    padding: 10px;
-}
-
-/* TEXT AREA */
-
-textarea {
-
-    background-color: #111827 !important;
-
-    color: white !important;
-
-    border-radius: 12px !important;
-}
-
-/* TABS */
-
-.stTabs [data-baseweb="tab"] {
-
-    color: #CBD5E1;
-
-    font-size: 16px;
-
-    font-weight: 700;
-
-    letter-spacing: 0.01em;
-}
-
-.stTabs [aria-selected="true"] {
-
-    color: var(--accent) !important;
-}
-
-/* CONTENT PANELS */
-
-.panel {
-
-    background-color: #111827;
-
-    border-radius: 18px;
-
-    padding: 30px;
-
-    border: 1px solid #1E293B;
-}
-
-/* DIVIDER */
-
-hr {
-
-    border-color: #1E293B;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# ======================================================
-# SESSION STATE
-# ======================================================
-
-defaults = {
+_defaults = {
     "profile": "",
     "analysis": "",
     "resume": "",
@@ -459,22 +188,44 @@ defaults = {
     "has_job_description": False,
     "resume_uploaded_name": "",
     "linkedin_uploaded_name": "",
+    "lang": "en",
+    "theme": "light",
 }
 
-for key, value in defaults.items():
+for _key, _value in _defaults.items():
 
-    if key not in st.session_state:
+    if _key not in st.session_state:
 
-        st.session_state[key] = value
+        st.session_state[_key] = _value
+
+# ======================================================
+# CSS (dark / light via session theme)
+# ======================================================
+
+st.markdown(
+    build_stylesheet(
+        st.session_state.get(
+            "theme",
+            "light",
+        ),
+    ),
+    unsafe_allow_html=True,
+)
+
+# ======================================================
+# SESSION STATE
+# ======================================================
 
 # ======================================================
 # HEADER
 # ======================================================
 
-st.title("🚀 AI Job Hunter")
+st.title(
+    t("page_title")
+)
 
 st.caption(
-    "AI-Powered Resume & Career Optimization Platform"
+    t("page_caption")
 )
 
 st.markdown("---")
@@ -485,15 +236,83 @@ st.markdown("---")
 
 with st.sidebar:
 
-    st.header("📂 Upload Documents")
+    _lang_idx = (
+        0
+        if st.session_state.get(
+            "lang",
+            "en",
+        )
+        == "en"
+        else 1
+    )
+
+    _lang_sel = st.selectbox(
+        t("lang_label"),
+        options=[
+            "en",
+            "es",
+        ],
+        index=_lang_idx,
+        format_func=lambda c: (
+            "English"
+            if c == "en"
+            else "Español"
+        ),
+    )
+
+    if _lang_sel != st.session_state.get(
+        "lang",
+        "en",
+    ):
+
+        st.session_state["lang"] = _lang_sel
+
+        st.rerun()
+
+    _theme_idx = (
+        0
+        if st.session_state.get(
+            "theme",
+            "light",
+        )
+        == "dark"
+        else 1
+    )
+
+    _theme_sel = st.selectbox(
+        t("theme_label"),
+        options=[
+            "dark",
+            "light",
+        ],
+        index=_theme_idx,
+        format_func=lambda x: (
+            t("theme_dark")
+            if x == "dark"
+            else t("theme_light")
+        ),
+    )
+
+    if _theme_sel != st.session_state.get(
+        "theme",
+        "light",
+    ):
+
+        st.session_state["theme"] = _theme_sel
+
+        st.rerun()
+
+    st.header(
+        t("upload_documents")
+    )
 
     # ==================================================
     # RESUME
     # ==================================================
 
     uploaded_resume = st.file_uploader(
-        "Upload Resume",
-        type=["pdf", "docx", "txt"]
+        t("upload_resume"),
+        type=["pdf", "docx", "txt"],
     )
 
     if uploaded_resume:
@@ -516,7 +335,7 @@ with st.sidebar:
                 st.session_state["has_resume"] = True
 
                 st.success(
-                    "Resume uploaded successfully"
+                    t("resume_uploaded_ok")
                 )
             else:
                 st.error(response.text)
@@ -526,8 +345,8 @@ with st.sidebar:
     # ==================================================
 
     linkedin_pdf = st.file_uploader(
-        "Upload LinkedIn PDF",
-        type=["pdf"]
+        t("upload_linkedin"),
+        type=["pdf"],
     )
 
     if linkedin_pdf:
@@ -550,7 +369,7 @@ with st.sidebar:
                 st.session_state["has_linkedin"] = True
 
                 st.success(
-                    "LinkedIn PDF uploaded"
+                    t("linkedin_uploaded_ok")
                 )
             else:
                 st.error(response.text)
@@ -561,16 +380,20 @@ with st.sidebar:
     # JOB DESCRIPTION
     # ==================================================
 
-    st.header("🎯 Target Job")
+    st.header(
+        t("target_job")
+    )
 
     job_description = st.text_area(
-        "Paste Job Description",
+        t("paste_job_description"),
         height=380,
         key="job_description_input",
         label_visibility="visible",
     )
 
-    if st.button("Save Job Description"):
+    if st.button(
+        t("save_job_description"),
+    ):
 
         response = api_post(
             "/save-job-description",
@@ -583,29 +406,23 @@ with st.sidebar:
             st.session_state["has_job_description"] = True
 
             st.success(
-                "Job Description saved"
+                t("job_description_saved")
             )
         else:
             st.error(response.text)
 
     with st.expander(
-        "🧹 Clean up files on server",
+        t("cleanup_expander"),
         expanded=False,
     ):
 
         st.caption(
-            "The API only uses fixed names: **resume.pdf|docx|txt**, "
-            "**linkedin.pdf**, and **job_description.txt**. "
-            "Old uploads (e.g. extra .docx names) are ignored for saving "
-            "but can still be read until you remove them."
+            t("cleanup_caption")
         )
 
         if st.button(
-            "Remove extra files in data/input",
-            help=(
-                "Deletes anything that is not job description, "
-                "canonical resume/LinkedIn, or .gitkeep."
-            ),
+            t("remove_extra_files"),
+            help=t("remove_extra_help"),
         ):
 
             r = api_post("/cleanup-input-extras")
@@ -626,22 +443,20 @@ with st.sidebar:
                 if removed:
 
                     st.success(
-                        "Removed: "
+                        t("removed_label")
+                        + " "
                         + ", ".join(removed)
                     )
 
                 else:
 
                     st.info(
-                        "No extra files to remove."
+                        t("no_extra_files")
                     )
 
         if st.button(
-            "Clear resume & LinkedIn from server",
-            help=(
-                "Deletes resume.pdf, resume.docx, resume.txt, "
-                "and linkedin.pdf. Re-upload to run AI again."
-            ),
+            t("clear_candidate_files"),
+            help=t("clear_candidate_help"),
         ):
 
             r = api_post("/clear-candidate-files")
@@ -665,11 +480,12 @@ with st.sidebar:
                 )
 
                 st.success(
-                    "Cleared: "
+                    t("cleared_label")
+                    + " "
                     + (
                         ", ".join(removed)
                         if removed
-                        else "nothing was on disk"
+                        else t("nothing_on_disk")
                     )
                 )
 
@@ -681,19 +497,28 @@ with st.sidebar:
     # AI ACTIONS
     # ==================================================
 
-    st.header("🚀 AI Actions")
+    st.header(
+        t("ai_actions")
+    )
 
     can_profile = st.session_state.get("has_resume") or st.session_state.get("has_linkedin")
     can_with_job = can_profile and st.session_state.get("has_job_description")
 
     if not can_profile:
-        st.warning("Upload a resume and/or LinkedIn PDF to enable AI actions.")
+        st.warning(
+            t("warn_upload_first")
+        )
     elif not st.session_state.get("has_job_description"):
-        st.info("Save a job description to enable Match/Resume/Cover Letter.")
+        st.info(
+            t("info_save_jd")
+        )
 
     # PROFILE
 
-    if st.button("Generate Profile", disabled=not can_profile):
+    if st.button(
+        t("generate_profile"),
+        disabled=not can_profile,
+    ):
 
         response = api_post("/profile")
 
@@ -706,7 +531,7 @@ with st.sidebar:
         if data is None:
 
             st.error(
-                "API returned a response that is not valid JSON."
+                t("invalid_json")
             )
 
             st.stop()
@@ -717,14 +542,17 @@ with st.sidebar:
         )
 
         st.success(
-            "Profile generated"
+            t("profile_generated")
         )
 
         st.rerun()
 
     # MATCH ANALYSIS
 
-    if st.button("Analyze Job Match", disabled=not can_with_job):
+    if st.button(
+        t("analyze_match"),
+        disabled=not can_with_job,
+    ):
 
         response = api_post("/match")
 
@@ -737,7 +565,7 @@ with st.sidebar:
         if data is None:
 
             st.error(
-                "API returned a response that is not valid JSON."
+                t("invalid_json")
             )
 
             st.stop()
@@ -763,14 +591,17 @@ with st.sidebar:
         )
 
         st.success(
-            "Match analysis completed"
+            t("match_completed")
         )
 
         st.rerun()
 
     # RESUME
 
-    if st.button("Generate AI Resume", disabled=not can_with_job):
+    if st.button(
+        t("generate_resume"),
+        disabled=not can_with_job,
+    ):
 
         response = api_post("/resume")
 
@@ -783,7 +614,7 @@ with st.sidebar:
         if data is None:
 
             st.error(
-                "API returned a response that is not valid JSON."
+                t("invalid_json")
             )
 
             st.stop()
@@ -794,14 +625,17 @@ with st.sidebar:
         )
 
         st.success(
-            "AI Resume generated"
+            t("resume_generated")
         )
 
         st.rerun()
 
     # COVER LETTER
 
-    if st.button("Generate Cover Letter", disabled=not can_with_job):
+    if st.button(
+        t("generate_cover"),
+        disabled=not can_with_job,
+    ):
 
         response = api_post("/cover-letter")
 
@@ -814,7 +648,7 @@ with st.sidebar:
         if data is None:
 
             st.error(
-                "API returned a response that is not valid JSON."
+                t("invalid_json")
             )
 
             st.stop()
@@ -825,7 +659,7 @@ with st.sidebar:
         )
 
         st.success(
-            "Cover Letter generated"
+            t("cover_generated")
         )
 
         st.rerun()
@@ -859,19 +693,19 @@ def get_score_status(score):
 
         return (
             "#22C55E",
-            "Excellent Match"
+            t("score_excellent"),
         )
 
     elif score >= 70:
 
         return (
             "#FACC15",
-            "Good Match"
+            t("score_good"),
         )
 
     return (
         "#EF4444",
-        "Needs Improvement"
+        t("score_needs_work"),
     )
 
 match_color, match_status = get_score_status(
@@ -889,14 +723,19 @@ skills_color = (
 )
 
 skills_status = (
-    "Strong Alignment"
+    t("skills_strong")
     if len(missing_skills) <= 3
-    else "Skill Gaps Detected"
+    else t("skills_gaps")
 )
 
 # ======================================================
 # DASHBOARD
 # ======================================================
+
+_ui_theme = st.session_state.get(
+    "theme",
+    "light",
+)
 
 col1, col2, col3 = st.columns(3)
 
@@ -909,8 +748,23 @@ def render_metric_card(
     value: str,
     value_color: str,
     subtitle: str,
-    height: int = 155
+    height: int = 155,
+    *,
+    ui_theme: str = "light",
 ):
+    if ui_theme == "light":
+        _bg = "linear-gradient(135deg,#ffffff,#f8fafc)"
+        _border = "#e2e8f0"
+        _shadow = "rgba(13,148,136,0.07)"
+        _title_c = "#0d9488"
+        _sub_c = "#64748b"
+    else:
+        _bg = "linear-gradient(135deg,#0F172A,#111827)"
+        _border = "#1E293B"
+        _shadow = "rgba(20,184,166,0.12)"
+        _title_c = "#14B8A6"
+        _sub_c = "#CBD5E1"
+
     st_html(
         f"""
 <style>
@@ -918,15 +772,15 @@ def render_metric_card(
 </style>
 <div style="
     font-family:'Nunito',ui-sans-serif,system-ui,sans-serif;
-    background: linear-gradient(135deg,#0F172A,#111827);
+    background:{_bg};
     padding:22px 18px;
     border-radius:18px;
-    border:1px solid #1E293B;
+    border:1px solid {_border};
     text-align:center;
-    box-shadow:0 0 25px rgba(20,184,166,0.12);
+    box-shadow:0 0 25px {_shadow};
 ">
   <div style="
-      color:#14B8A6;
+      color:{_title_c};
       font-size:15px;
       font-weight:700;
       margin-bottom:10px;
@@ -939,7 +793,7 @@ def render_metric_card(
       line-height:1.05;
   ">{value}</div>
   <div style="
-      color:#CBD5E1;
+      color:{_sub_c};
       margin-top:10px;
       font-size:13px;
       font-weight:600;
@@ -954,30 +808,33 @@ def render_metric_card(
 
 with col1:
     render_metric_card(
-        title="Match Score",
+        title=t("match_score"),
         value=f"{match_score}%",
         value_color=match_color,
         subtitle=match_status,
+        ui_theme=_ui_theme,
     )
 
 # ATS SCORE
 
 with col2:
     render_metric_card(
-        title="ATS Score",
+        title=t("ats_score"),
         value=f"{ats_score}%",
         value_color=ats_color,
         subtitle=ats_status,
+        ui_theme=_ui_theme,
     )
 
 # MISSING SKILLS
 
 with col3:
     render_metric_card(
-        title="Missing Skills",
+        title=t("missing_skills"),
         value=str(len(missing_skills)),
         value_color=skills_color,
         subtitle=skills_status,
+        ui_theme=_ui_theme,
     )
 
 # ======================================================
@@ -999,10 +856,24 @@ if missing_skills:
     color:var(--accent);
     margin-bottom:20px;
 ">
-    Missing Skills Details
+    """
+        + t("missing_skills_heading")
+        + """
 </h3>
 """,
         unsafe_allow_html=True,
+    )
+
+    _skill_bg = (
+        "#f8fafc"
+        if _ui_theme == "light"
+        else "#0F172A"
+    )
+
+    _skill_fg = (
+        "#0f172a"
+        if _ui_theme == "light"
+        else "white"
     )
 
     for skill in missing_skills:
@@ -1010,12 +881,12 @@ if missing_skills:
         st.markdown(
             f"""
 <div style="
-    background:#0F172A;
+    background:{_skill_bg};
     padding:12px;
     border-radius:10px;
     margin-bottom:10px;
     border-left:4px solid #EF4444;
-    color:white;
+    color:{_skill_fg};
     font-size:16px;
 ">
     {skill}
@@ -1036,10 +907,10 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ======================================================
 
 tab1, tab2, tab3, tab4 = st.tabs([
-    "👤 Profile",
-    "📊 Match Analysis",
-    "📄 AI Resume",
-    "✉️ Cover Letter"
+    t("tab_profile"),
+    t("tab_match"),
+    t("tab_resume"),
+    t("tab_cover"),
 ])
 
 # PROFILE
@@ -1053,7 +924,7 @@ with tab1:
 
     if not st.session_state.get("profile"):
         st.info(
-            "Upload your resume + LinkedIn PDF, save a job description, then click **Generate Profile** in the sidebar."
+            t("empty_profile")
         )
     else:
         st.markdown(st.session_state["profile"])
@@ -1074,7 +945,7 @@ with tab2:
 
     if not st.session_state.get("analysis"):
         st.info(
-            "Click **Run Match Analysis** in the sidebar to generate the match report and scores."
+            t("empty_analysis")
         )
     else:
         st.markdown(st.session_state["analysis"])
@@ -1095,7 +966,7 @@ with tab3:
 
     if not st.session_state.get("resume"):
         st.info(
-            "Click **Generate Resume** in the sidebar to create an ATS-optimized version tailored to the job."
+            t("empty_resume")
         )
     else:
         st.code(
@@ -1106,7 +977,7 @@ with tab3:
     if st.session_state.get("resume"):
 
         st.download_button(
-            label="⬇ Download Resume",
+            label=t("download_resume"),
             data=st.session_state["resume"],
             file_name="ai_resume.txt",
             mime="text/plain"
@@ -1128,7 +999,7 @@ with tab4:
 
     if not st.session_state.get("cover_letter"):
         st.info(
-            "Click **Generate Cover Letter** in the sidebar after saving a job description."
+            t("empty_cover")
         )
     else:
         st.code(
@@ -1139,7 +1010,7 @@ with tab4:
     if st.session_state.get("cover_letter"):
 
         st.download_button(
-            label="⬇ Download Cover Letter",
+            label=t("download_cover"),
             data=st.session_state["cover_letter"],
             file_name="cover_letter.txt",
             mime="text/plain"

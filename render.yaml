@@ -1,0 +1,44 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+#
+# After "New" -> "Blueprint", set these in the dashboard (secret / sync: false):
+#   API:  OPENAI_API_KEY, JOB_HUNTER_API_KEY (long random; same value on UI)
+#   UI:   JOB_HUNTER_API_KEY (same as API)
+#
+# API base URL for the UI:
+#   By default the UI uses API_INTERNAL_HOSTPORT (private Render network, http).
+#   Override with API_URL (e.g. https://your-api.onrender.com) if you need public HTTPS.
+#
+# Optional API: CORS_ORIGINS (comma-separated) for browser access to /docs from another origin.
+
+version: "1"
+
+services:
+  - type: web
+    name: ai-job-hunter-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile.api
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: REQUIRE_JOB_HUNTER_API_KEY
+        value: "1"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: JOB_HUNTER_API_KEY
+        sync: false
+
+  - type: web
+    name: ai-job-hunter-ui
+    runtime: docker
+    dockerfilePath: ./Dockerfile.streamlit
+    dockerContext: .
+    envVars:
+      - key: API_INTERNAL_HOSTPORT
+        fromService:
+          name: ai-job-hunter-api
+          type: web
+          property: hostport
+      - key: JOB_HUNTER_API_KEY
+        sync: false

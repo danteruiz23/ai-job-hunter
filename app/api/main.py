@@ -11,6 +11,7 @@ from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
+from pydantic import Field
 
 from pathlib import Path
 
@@ -19,12 +20,17 @@ from app.services.file_parser import (
 )
 
 from app.api.deps import (
+    MAX_UPLOAD_BYTES,
     read_upload_with_limit,
     require_openai_key,
 )
 
 from app.api.middleware_api_key import (
     ApiKeyMiddleware,
+)
+
+from app.api.middleware_rate_limit import (
+    RateLimitMiddleware,
 )
 
 # =========================================
@@ -46,6 +52,18 @@ from app.ai.resume_generator import (
 from app.ai.cover_letter_generator import (
     generate_cover_letter
 )
+
+# =========================================
+# LIMITS (env-tunable; used by lifespan log + job description model)
+# =========================================
+
+_MAX_JOB_DESCRIPTION_CHARS = int(
+    os.getenv(
+        "MAX_JOB_DESCRIPTION_CHARS",
+        "400000",
+    ),
+)
+
 
 # =========================================
 # APP
@@ -85,6 +103,17 @@ async def lifespan(
                 "Set a shared secret in .env for the API and Streamlit."
             )
 
+        if not os.getenv(
+            "OPENAI_API_KEY",
+            "",
+        ).strip():
+
+            raise RuntimeError(
+                "OPENAI_API_KEY must be set when "
+                "ENVIRONMENT=production or "
+                "REQUIRE_JOB_HUNTER_API_KEY=1."
+            )
+
     _openai = (
         "set"
         if os.getenv(
@@ -106,7 +135,11 @@ async def lifespan(
     print(
         "[ai-job-hunter] "
         f"OPENAI_API_KEY: {_openai}; "
-        f"JOB_HUNTER_API_KEY: {_api_key}",
+        f"JOB_HUNTER_API_KEY: {_api_key}; "
+        f"MAX_UPLOAD_MB: {MAX_UPLOAD_BYTES // (1024 * 1024)}; "
+        f"MAX_JOB_DESCRIPTION_CHARS: {_MAX_JOB_DESCRIPTION_CHARS}; "
+        f"RATE_LIMIT_DISABLED: "
+        f"{os.getenv('RATE_LIMIT_DISABLED', '0')!r}",
         flush=True,
     )
 
@@ -150,6 +183,8 @@ app.add_middleware(
 
 app.add_middleware(ApiKeyMiddleware)
 
+app.add_middleware(RateLimitMiddleware)
+
 # =========================================
 # FOLDERS
 # =========================================
@@ -171,7 +206,10 @@ Path("data/output").mkdir(
 class JobDescriptionRequest(
     BaseModel
 ):
-    job_description: str
+    job_description: str = Field(
+        ...,
+        max_length=_MAX_JOB_DESCRIPTION_CHARS,
+    )
 
 # =========================================
 # HELPERS

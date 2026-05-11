@@ -23,22 +23,38 @@ def require_openai_key():
         )
 
 
+_READ_CHUNK = 1024 * 1024
+
+
 async def read_upload_with_limit(
     file: UploadFile,
 ) -> bytes:
 
-    body = await file.read()
+    parts: list[bytes] = []
+    total = 0
 
-    if len(body) > MAX_UPLOAD_BYTES:
+    while True:
 
-        mb = MAX_UPLOAD_BYTES // (1024 * 1024)
+        chunk = await file.read(_READ_CHUNK)
 
-        raise HTTPException(
-            status_code=413,
-            detail=(
-                f"File too large (max {mb} MB). "
-                "Reduce file size or raise MAX_UPLOAD_BYTES in .env."
-            ),
-        )
+        if not chunk:
 
-    return body
+            break
+
+        total += len(chunk)
+
+        if total > MAX_UPLOAD_BYTES:
+
+            mb = MAX_UPLOAD_BYTES // (1024 * 1024)
+
+            raise HTTPException(
+                status_code=413,
+                detail=(
+                    f"File too large (max {mb} MB). "
+                    "Reduce file size or raise MAX_UPLOAD_BYTES in .env."
+                ),
+            )
+
+        parts.append(chunk)
+
+    return b"".join(parts)

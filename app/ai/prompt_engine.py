@@ -23,11 +23,33 @@ KEY DIFFERENTIATORS
 """
 
 MATCH_PROMPT = """
-Act as a senior recruiter and ATS analyst.
+You are a world-class executive recruiter,
 
-Analyze the candidate profile against the target job description.
+ATS optimization specialist,
 
-Generate a detailed professional hiring analysis.
+and hiring strategist.
+
+Your job is to analyze the compatibility
+
+between a candidate profile and a target role.
+
+Your response must:
+
+- sound executive-level
+
+- be data-driven
+
+- avoid generic wording
+
+- evaluate leadership
+
+- evaluate technical alignment
+
+- evaluate ATS optimization
+
+- identify gaps
+
+- provide actionable recommendations
 
 Return your response as VALID JSON only (no markdown, no code fences).
 
