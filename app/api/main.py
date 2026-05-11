@@ -1,21 +1,154 @@
-from fastapi import FastAPI, UploadFile, File
+import os
+
+from contextlib import asynccontextmanager
+
+from fastapi import Depends
+from fastapi import FastAPI
+from fastapi import UploadFile
+from fastapi import File
+from fastapi import HTTPException
+
 from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
+
 from pathlib import Path
 
-app = FastAPI()
+from app.services.file_parser import (
+    extract_text
+)
+
+from app.api.deps import (
+    read_upload_with_limit,
+    require_openai_key,
+)
+
+from app.api.middleware_api_key import (
+    ApiKeyMiddleware,
+)
 
 # =========================================
-# CORS
+# AI GENERATORS
 # =========================================
+
+from app.ai.profile_generator import (
+    generate_profile
+)
+
+from app.ai.match_engine import (
+    generate_match_analysis
+)
+
+from app.ai.resume_generator import (
+    generate_resume
+)
+
+from app.ai.cover_letter_generator import (
+    generate_cover_letter
+)
+
+# =========================================
+# APP
+# =========================================
+
+
+@asynccontextmanager
+async def lifespan(
+    _app: FastAPI,
+):
+
+    _env = os.getenv(
+        "ENVIRONMENT",
+        "",
+    ).strip().lower()
+
+    _force_key = os.getenv(
+        "REQUIRE_JOB_HUNTER_API_KEY",
+        "",
+    ).strip().lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+
+    if _env == "production" or _force_key:
+
+        if not os.getenv(
+            "JOB_HUNTER_API_KEY",
+            "",
+        ).strip():
+
+            raise RuntimeError(
+                "JOB_HUNTER_API_KEY must be set when "
+                "ENVIRONMENT=production or "
+                "REQUIRE_JOB_HUNTER_API_KEY=1. "
+                "Set a shared secret in .env for the API and Streamlit."
+            )
+
+    _openai = (
+        "set"
+        if os.getenv(
+            "OPENAI_API_KEY",
+            "",
+        ).strip()
+        else "missing"
+    )
+
+    _api_key = (
+        "required"
+        if os.getenv(
+            "JOB_HUNTER_API_KEY",
+            "",
+        ).strip()
+        else "open"
+    )
+
+    print(
+        "[ai-job-hunter] "
+        f"OPENAI_API_KEY: {_openai}; "
+        f"JOB_HUNTER_API_KEY: {_api_key}",
+        flush=True,
+    )
+
+    yield
+
+
+app = FastAPI(
+    lifespan=lifespan,
+)
+
+# =========================================
+# CORS (local Streamlit by default)
+# =========================================
+
+_cors_raw = os.getenv(
+    "CORS_ORIGINS",
+    "http://127.0.0.1:8501,http://localhost:8501",
+)
+
+_cors_origins = [
+    o.strip()
+    for o in _cors_raw.split(",")
+    if o.strip()
+]
+
+if not _cors_origins:
+
+    _cors_origins = ["http://127.0.0.1:8501"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=_cors_origins,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# =========================================
+# Optional API key (set JOB_HUNTER_API_KEY in .env)
+# =========================================
+
+app.add_middleware(ApiKeyMiddleware)
 
 # =========================================
 # FOLDERS
@@ -35,8 +168,87 @@ Path("data/output").mkdir(
 # REQUEST MODEL
 # =========================================
 
-class JobDescriptionRequest(BaseModel):
+class JobDescriptionRequest(
+    BaseModel
+):
     job_description: str
+
+# =========================================
+# HELPERS
+# =========================================
+
+def _require_non_empty(
+    value: str,
+    *,
+    field_name: str,
+    message: str,
+):
+    if not (value or "").strip():
+        raise HTTPException(
+            status_code=400,
+            detail=f"{field_name}: {message}",
+        )
+
+def _save_upload_path(
+    file: UploadFile,
+    *,
+    base_name: str,
+    allowed_suffixes: set[str],
+) -> Path:
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix not in allowed_suffixes:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type '{suffix}'. Allowed: {sorted(allowed_suffixes)}",
+        )
+
+    # Ignore user-provided filenames entirely (prevents path traversal and messy names).
+    return Path("data/input") / f"{base_name}{suffix}"
+
+def load_candidate_data():
+
+    input_folder = Path("data/input")
+
+    parts: list[str] = []
+
+    for file in sorted(input_folder.iterdir()):
+        if not file.is_file():
+            continue
+
+        if file.name == "job_description.txt":
+            continue
+
+        if file.suffix.lower() not in {".txt", ".pdf", ".docx"}:
+            continue
+
+        try:
+            extracted = extract_text(str(file))
+        except Exception:
+            continue
+
+        extracted = (extracted or "").strip()
+        if not extracted:
+            continue
+
+        parts.append(f"{file.name}\n{extracted}")
+
+    return "\n\n---\n\n".join(parts).strip()
+
+def load_job_description():
+
+    try:
+
+        with open(
+            "data/input/job_description.txt",
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            return f.read()
+
+    except:
+
+        return ""
 
 # =========================================
 # ROOT
@@ -49,6 +261,14 @@ def root():
         "status": "AI Job Hunter API running"
     }
 
+
+@app.get("/health")
+def health():
+
+    return {
+        "status": "ok"
+    }
+
 # =========================================
 # SAVE JOB DESCRIPTION
 # =========================================
@@ -57,10 +277,16 @@ def root():
 def save_job_description(
     request: JobDescriptionRequest
 ):
+    _require_non_empty(
+        request.job_description,
+        field_name="job_description",
+        message="Please provide a job description before saving.",
+    )
 
     with open(
         "data/input/job_description.txt",
-        "w"
+        "w",
+        encoding="utf-8"
     ) as f:
 
         f.write(
@@ -80,17 +306,24 @@ async def upload_resume(
     file: UploadFile = File(...)
 ):
 
+    out_path = _save_upload_path(
+        file,
+        base_name="resume",
+        allowed_suffixes={".pdf", ".docx", ".txt"},
+    )
+
+    payload = await read_upload_with_limit(file)
+
     with open(
-        f"data/input/{file.filename}",
+        out_path,
         "wb"
     ) as f:
 
-        f.write(
-            await file.read()
-        )
+        f.write(payload)
 
     return {
-        "status": "success"
+        "status": "success",
+        "filename": out_path.name,
     }
 
 # =========================================
@@ -102,17 +335,24 @@ async def upload_linkedin(
     file: UploadFile = File(...)
 ):
 
+    out_path = _save_upload_path(
+        file,
+        base_name="linkedin",
+        allowed_suffixes={".pdf"},
+    )
+
+    payload = await read_upload_with_limit(file)
+
     with open(
-        f"data/input/{file.filename}",
+        out_path,
         "wb"
     ) as f:
 
-        f.write(
-            await file.read()
-        )
+        f.write(payload)
 
     return {
-        "status": "success"
+        "status": "success",
+        "filename": out_path.name,
     }
 
 # =========================================
@@ -120,57 +360,73 @@ async def upload_linkedin(
 # =========================================
 
 @app.post("/profile")
-def generate_profile():
+def profile(
+    _openai: None = Depends(require_openai_key),
+):
+
+    candidate_data = (
+        load_candidate_data()
+    )
+
+    _require_non_empty(
+        candidate_data,
+        field_name="candidate_data",
+        message="Upload your resume and/or LinkedIn PDF first.",
+    )
+
+    result = generate_profile(
+        candidate_data
+    )
 
     return {
-
-        "profile": """
-Senior Telecom Service Delivery Executive
-
-15+ years leading:
-• Telecom Infrastructure
-• Service Delivery
-• AI Transformation
-• SLA Governance
-• NOC Operations
-• Vendor Management
-
-Strong background managing global telecom operations and AI-driven transformation initiatives.
-"""
+        "profile": result
     }
 
 # =========================================
-# MATCH
+# MATCH ANALYSIS
 # =========================================
 
 @app.post("/match")
-def generate_match():
+def match(
+    _openai: None = Depends(require_openai_key),
+):
+
+    candidate_data = (
+        load_candidate_data()
+    )
+
+    job_description = (
+        load_job_description()
+    )
+
+    _require_non_empty(
+        candidate_data,
+        field_name="candidate_data",
+        message="Upload your resume and/or LinkedIn PDF first.",
+    )
+
+    _require_non_empty(
+        job_description,
+        field_name="job_description",
+        message="Save a job description first.",
+    )
+
+    try:
+        result = generate_match_analysis(
+            candidate_data,
+            job_description
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Match analysis failed: {e}"
+        )
 
     return {
-
-        "analysis": """
-Strong candidate for telecom leadership positions.
-
-Strengths:
-• Service Delivery
-• AI Transformation
-• Telecom Operations
-• Vendor Management
-• SLA Governance
-
-Areas to improve:
-• Financial ownership
-• Portuguese fluency
-""",
-
-        "match_score": 82,
-
-        "ats_score": 88,
-
-        "missing_skills": [
-            "Financial Ownership",
-            "Advanced Portuguese"
-        ]
+        "analysis": result["analysis"],
+        "match_score": result["match_score"],
+        "ats_score": result["ats_score"],
+        "missing_skills": result["missing_skills"]
     }
 
 # =========================================
@@ -178,31 +434,37 @@ Areas to improve:
 # =========================================
 
 @app.post("/resume")
-def generate_resume():
+def resume(
+    _openai: None = Depends(require_openai_key),
+):
 
-    resume = """
-DANTE RUIZ
+    candidate_data = (
+        load_candidate_data()
+    )
 
-Senior Telecom Service Delivery Executive
+    job_description = (
+        load_job_description()
+    )
 
-SUMMARY
-15+ years leading telecom infrastructure and AI transformation programs.
+    _require_non_empty(
+        candidate_data,
+        field_name="candidate_data",
+        message="Upload your resume and/or LinkedIn PDF first.",
+    )
 
-SKILLS
-• Telecom
-• AI
-• Automation
-• SLA
-• NOC
-• Leadership
+    _require_non_empty(
+        job_description,
+        field_name="job_description",
+        message="Save a job description first.",
+    )
 
-EXPERIENCE
-• Telxius
-• Telefonica
-"""
+    result = generate_resume(
+        candidate_data,
+        job_description
+    )
 
     return {
-        "resume": resume
+        "resume": result
     }
 
 # =========================================
@@ -210,20 +472,35 @@ EXPERIENCE
 # =========================================
 
 @app.post("/cover-letter")
-def generate_cover_letter():
+def cover_letter(
+    _openai: None = Depends(require_openai_key),
+):
 
-    cover_letter = """
-Dear Hiring Manager,
+    candidate_data = (
+        load_candidate_data()
+    )
 
-I am excited to apply for this position.
+    job_description = (
+        load_job_description()
+    )
 
-My experience leading telecom operations and AI transformation initiatives makes me a strong fit.
+    _require_non_empty(
+        candidate_data,
+        field_name="candidate_data",
+        message="Upload your resume and/or LinkedIn PDF first.",
+    )
 
-Sincerely,
+    _require_non_empty(
+        job_description,
+        field_name="job_description",
+        message="Save a job description first.",
+    )
 
-Dante Ruiz
-"""
+    result = generate_cover_letter(
+        candidate_data,
+        job_description
+    )
 
     return {
-        "cover_letter": cover_letter
+        "cover_letter": result
     }

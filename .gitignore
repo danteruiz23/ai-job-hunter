@@ -1,6 +1,25 @@
 venv/
+.venv/
 .env
 __pycache__/
 *.pyc
 data/output/
 .DS_Store
+
+# Local inputs/uploads & generated profiles (personal data — do not commit)
+data/input/*
+!data/input/.gitkeep
+data/uploads/*
+!data/uploads/.gitkeep
+data/resumes/*
+!data/resumes/.gitkeep
+data/linkedin/*
+!data/linkedin/.gitkeep
+data/profiles/*
+!data/profiles/.gitkeep
+data/jobs/*
+!data/jobs/.gitkeep
+
+# Streamlit/Frontend backups
+frontend/*.backup.py
+frontend/*backup*.py
