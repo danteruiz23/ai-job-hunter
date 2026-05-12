@@ -1,21 +1,18 @@
 # Render Blueprint: https://render.com/docs/blueprint-spec
 #
-# Form fields in the dashboard (Blueprint name, branch, path): use defaults;
-# path is empty or "render.yaml" at repo root.
+# Form: Blueprint name, branch main, path empty or render.yaml at repo root.
 #
-# After apply, set these in each service -> Environment (secret / prompted):
-#   API:  OPENAI_API_KEY, JOB_HUNTER_API_KEY
-#   UI:   API_URL (https://<api-name>.onrender.com, no trailing slash), JOB_HUNTER_API_KEY
+# Secrets you set manually (Dashboard → service → Environment):
+#   API:  OPENAI_API_KEY  (required)
+#   UI:   API_URL         (https://<api-name>.onrender.com, no trailing slash)
 #
-# Free web services cannot receive private network traffic (Render docs). Use the
-# public API URL for API_URL, not internal host:port.
+# JOB_HUNTER_API_KEY is auto-generated on the API and copied to the UI (same value).
 #
-# Optional API: set CORS_ORIGINS to your UI URL (https://…onrender.com) if you use
-# browser clients or SHOW_API_DOCS=1 and open /docs from another origin.
+# Free web services: use public API_URL for the UI (not internal host:port).
+#
+# Optional API: CORS_ORIGINS = UI URL if you use SHOW_API_DOCS=1 from another origin.
 
-# If the API deploy fails on Render: open Logs and search for RuntimeError.
-# Most often: ENVIRONMENT=production but OPENAI_API_KEY or JOB_HUNTER_API_KEY
-# is missing — set both under the API service → Environment, then Manual Deploy.
+# If deploy fails: Logs → search RuntimeError (missing OPENAI) or OpenAIError (bad key).
 
 services:
   - type: web
@@ -33,7 +30,7 @@ services:
       - key: OPENAI_API_KEY
         sync: false
       - key: JOB_HUNTER_API_KEY
-        sync: false
+        generateValue: true
 
   - type: web
     name: ai-job-hunter-ui
@@ -46,4 +43,7 @@ services:
       - key: API_URL
         sync: false
       - key: JOB_HUNTER_API_KEY
-        sync: false
+        fromService:
+          name: ai-job-hunter-api
+          type: web
+          envVarKey: JOB_HUNTER_API_KEY
