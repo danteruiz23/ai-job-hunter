@@ -217,24 +217,27 @@ st.markdown(
 # ======================================================
 
 # ======================================================
-# HEADER
+# HEADER (title left, language + theme top-right)
 # ======================================================
 
-st.title(
-    t("page_title")
+_header_left, _header_right = st.columns(
+    [
+        4,
+        1.2,
+    ],
 )
 
-st.caption(
-    t("page_caption")
-)
+with _header_left:
 
-st.markdown("---")
+    st.title(
+        t("page_title")
+    )
 
-# ======================================================
-# SIDEBAR
-# ======================================================
+    st.caption(
+        t("page_caption")
+    )
 
-with st.sidebar:
+with _header_right:
 
     _lang_idx = (
         0
@@ -258,6 +261,7 @@ with st.sidebar:
             if c == "en"
             else "Español"
         ),
+        key="header_lang_select",
     )
 
     if _lang_sel != st.session_state.get(
@@ -291,6 +295,7 @@ with st.sidebar:
             if x == "dark"
             else t("theme_light")
         ),
+        key="header_theme_select",
     )
 
     if _theme_sel != st.session_state.get(
@@ -301,6 +306,14 @@ with st.sidebar:
         st.session_state["theme"] = _theme_sel
 
         st.rerun()
+
+st.markdown("---")
+
+# ======================================================
+# SIDEBAR
+# ======================================================
+
+with st.sidebar:
 
     st.subheader(
         t("upload_documents")

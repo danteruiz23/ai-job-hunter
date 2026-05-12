@@ -199,33 +199,36 @@ section[data-testid="stSidebar"] div:has(.stTextArea) [data-testid="stWidgetLabe
     color: var(--jd-text) !important;
 }
 
-section[data-testid="stSidebar"] [data-testid="stSelectbox"]:first-of-type [data-baseweb="select"] {
+/* Top-right: language + theme (first main row, last column) */
+section[data-testid="stMain"] [data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:last-child [data-testid="stSelectbox"] [data-baseweb="select"] {
     background-color: var(--lang-select-bg) !important;
     border: 2px solid var(--lang-select-border) !important;
     border-radius: 12px !important;
 }
 
-section[data-testid="stSidebar"] [data-testid="stSelectbox"]:first-of-type [data-baseweb="select"] > div {
+section[data-testid="stMain"] [data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:last-child [data-testid="stSelectbox"] [data-baseweb="select"] > div {
     color: var(--lang-select-text) !important;
     -webkit-text-fill-color: var(--lang-select-text) !important;
 }
 
-section[data-testid="stSidebar"] [data-testid="stSelectbox"]:first-of-type [data-baseweb="select"] span {
+section[data-testid="stMain"] [data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:last-child [data-testid="stSelectbox"] [data-baseweb="select"] span {
     color: var(--lang-select-text) !important;
     -webkit-text-fill-color: var(--lang-select-text) !important;
 }
 
-section[data-testid="stSidebar"] [data-testid="stSelectbox"]:first-of-type svg {
+section[data-testid="stMain"] [data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:last-child [data-testid="stSelectbox"] svg {
     fill: var(--lang-select-border) !important;
 }
+
+section[data-testid="stMain"] [data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:last-child [data-testid="stWidgetLabel"] p {
+    color: var(--lang-select-label) !important;
+}
+
 
 section[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
     color: var(--sidebar-upload-text-strong) !important;
 }
 
-section[data-testid="stSidebar"] [data-testid="stSelectbox"]:first-of-type [data-testid="stWidgetLabel"] p {
-    color: var(--lang-select-label) !important;
-}
 
 section[data-testid="stSidebar"] .stTextArea textarea {
     min-height: 72px !important;
