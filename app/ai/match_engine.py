@@ -1,9 +1,8 @@
-from openai import OpenAI
 from dotenv import load_dotenv
 
-import os
 import json
 
+from app.ai.openai_client import get_openai_client
 from app.ai.prompt_engine import MATCH_PROMPT
 from app.ai.industry_detector import detect_industry
 from app.ai.skill_extractor import extract_skills
@@ -14,10 +13,6 @@ from app.ai.job_parser import extract_target_role
 # ======================================================
 
 load_dotenv()
-
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
 
 # ======================================================
 # JSON RETRY REMINDER
@@ -127,7 +122,7 @@ def _call_match_model(
     temperature: float,
 ):
 
-    response = client.chat.completions.create(
+    response = get_openai_client().chat.completions.create(
 
         model="gpt-4.1-mini",
 
