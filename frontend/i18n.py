@@ -92,6 +92,27 @@ STRINGS = {
             "Could not reach the API at `{url}`. Start it with: "
             "`python -m uvicorn app.api.main:app --reload`\n\nDetails: {exc}"
         ),
+        "debug_api_expander": "API & connectivity (debug)",
+        "debug_probe_health": "Test GET /health",
+        "debug_probe_hint": (
+            "Uses the same base URL as uploads and Save. "
+            "200 + JSON here means the API is reachable from Streamlit."
+        ),
+        "api_error_html": (
+            "The server returned an HTML error page (HTTP {code}), not API "
+            "data. On Render, set **API_URL** in the Streamlit service to your "
+            "**FastAPI** URL (not this Streamlit URL) and ensure the API "
+            "service is running and healthy."
+        ),
+        "jd_cleared_bad_html": (
+            "The job description field contained an HTML error page (for "
+            "example a 502 page) and was cleared. Paste the real job text "
+            "and click **Save Job Description** again."
+        ),
+        "jd_reject_html": (
+            "That text looks like an HTML error page (not a job description). "
+            "Paste the job posting text only, then save."
+        ),
     },
     "es": {
         "page_title": "🚀 Cazador de empleos IA",
@@ -186,6 +207,27 @@ STRINGS = {
             "No se pudo conectar con la API en `{url}`. Inicia el servidor "
             "con: `python -m uvicorn app.api.main:app --reload`\n\n"
             "Detalle: {exc}"
+        ),
+        "debug_api_expander": "API y conectividad (depuración)",
+        "debug_probe_health": "Probar GET /health",
+        "debug_probe_hint": (
+            "Usa la misma URL base que las subidas y Guardar. "
+            "200 + JSON indica que Streamlit alcanza la API."
+        ),
+        "api_error_html": (
+            "El servidor devolvió una página HTML de error (HTTP {code}), no "
+            "datos de la API. En Render, configura **API_URL** en el servicio "
+            "Streamlit con la URL de **FastAPI** (no la de Streamlit) y "
+            "comprueba que la API esté en marcha."
+        ),
+        "jd_cleared_bad_html": (
+            "La descripción del puesto contenía una página HTML de error "
+            "(p. ej. 502) y se vació. Pega el texto real del puesto y pulsa "
+            "**Guardar descripción** de nuevo."
+        ),
+        "jd_reject_html": (
+            "Ese texto parece una página HTML de error, no la descripción "
+            "del puesto. Pega solo el texto del anuncio y guarda."
         ),
     },
 }

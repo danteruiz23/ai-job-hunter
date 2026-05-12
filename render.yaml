@@ -4,7 +4,8 @@
 #
 # Secrets you set manually (Dashboard → service → Environment):
 #   API:  OPENAI_API_KEY  (required)
-#   UI:   API_URL         (https://<api-name>.onrender.com, no trailing slash)
+#   UI:   API_URL is set below to match name: ai-job-hunter-api (override if you
+#         rename the API service or use preview URLs).
 #
 # JOB_HUNTER_API_KEY is auto-generated on the API and copied to the UI (same value).
 #
@@ -41,7 +42,7 @@ services:
     healthCheckPath: /
     envVars:
       - key: API_URL
-        sync: false
+        value: https://ai-job-hunter-api.onrender.com
       - key: JOB_HUNTER_API_KEY
         fromService:
           name: ai-job-hunter-api

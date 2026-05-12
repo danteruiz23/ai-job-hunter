@@ -527,6 +527,93 @@ section[data-testid="stSidebar"] [data-testid="stAlert"] {
     border: 1px solid __PANEL_BORDER__ !important;
 }
 
+/* ------------------------------------------------------------------ */
+/* Mobile / narrow viewports (Streamlit + custom layout)              */
+/* ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .stApp {
+        font-size: 15px !important;
+        line-height: 1.55 !important;
+    }
+
+    /* Main column uses full width; comfortable side padding */
+    section[data-testid="stMain"] > div {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    .main .block-container,
+    section[data-testid="stMain"] .block-container {
+        padding-left: 0.65rem !important;
+        padding-right: 0.65rem !important;
+        max-width: 100% !important;
+    }
+
+    /* Title row: stack title + language/theme instead of squeezing */
+    section[data-testid="stMain"] [data-testid="stHorizontalBlock"]:first-of-type {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+    }
+
+    section[data-testid="stMain"] [data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"] {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* Sidebar overlay: cap width, avoid vw feeling cramped on phones */
+    section[data-testid="stSidebar"] {
+        width: min(100vw - 3rem, 22rem) !important;
+        min-width: 0 !important;
+        max-width: min(504px, 100vw - 2rem) !important;
+    }
+
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3 {
+        font-size: 1rem !important;
+    }
+
+    /* iOS: inputs below 16px trigger zoom-on-focus */
+    .stApp textarea,
+    .stApp input[type="text"],
+    .stApp input[type="search"],
+    .stApp input[type="number"] {
+        font-size: 16px !important;
+    }
+
+    section[data-testid="stSidebar"] .stTextArea textarea {
+        max-height: min(50vh, 480px) !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        font-size: 14px !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .panel {
+        padding: 1rem !important;
+        border-radius: 14px !important;
+    }
+
+    /* Multi-column rows: allow shrinking (Streamlit flex) */
+    section[data-testid="stMain"] [data-testid="stHorizontalBlock"] [data-testid="column"] {
+        min-width: 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stApp {
+        font-size: 14px !important;
+    }
+
+    section[data-testid="stMain"] > div {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+}
+
 </style>
 """
 

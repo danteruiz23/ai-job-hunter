@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 from pathlib import Path
 
@@ -42,6 +43,29 @@ def _resolve_api_url() -> str:
 
         return explicit
 
+    try:
+
+        if hasattr(
+            st,
+            "secrets",
+        ) and "API_URL" in st.secrets:
+
+            from_secrets = (
+                str(
+                    st.secrets["API_URL"],
+                )
+                .strip()
+                .rstrip("/")
+            )
+
+            if from_secrets:
+
+                return from_secrets
+
+    except Exception:
+
+        pass
+
     hp = (
         os.getenv(
             "API_INTERNAL_HOSTPORT",
@@ -79,9 +103,6 @@ def t(
     )
 
 
-API_URL = _resolve_api_url()
-
-
 def _api_headers():
 
     key = os.getenv(
@@ -103,10 +124,12 @@ def api_post(
     **kwargs,
 ):
 
+    base = _resolve_api_url()
+
     url = (
         path
         if path.startswith("http")
-        else f"{API_URL}{path}"
+        else f"{base}{path}"
     )
 
     headers = kwargs.pop(
@@ -120,14 +143,69 @@ def api_post(
 
     try:
 
-        return requests.post(
-            url,
-            timeout=kwargs.pop(
-                "timeout",
-                300,
-            ),
-            **kwargs,
+        _timeout = kwargs.pop(
+            "timeout",
+            None,
         )
+
+        if _timeout is None:
+
+            _connect = float(
+                os.getenv(
+                    "API_CONNECT_TIMEOUT",
+                    "25",
+                )
+            )
+
+            _read = float(
+                os.getenv(
+                    "API_READ_TIMEOUT",
+                    "300",
+                )
+            )
+
+            _timeout = (
+                _connect,
+                _read,
+            )
+
+        _gw_retries = max(
+            0,
+            int(
+                os.getenv(
+                    "API_GATEWAY_RETRIES",
+                    "2",
+                )
+            ),
+        )
+
+        _attempt = 0
+
+        while True:
+
+            response = requests.post(
+                url,
+                timeout=_timeout,
+                **kwargs,
+            )
+
+            if (
+                response.status_code
+                not in (
+                    502,
+                    503,
+                    504,
+                )
+                or _attempt >= _gw_retries
+            ):
+
+                return response
+
+            _attempt += 1
+
+            time.sleep(
+                2.5 + _attempt * 1.5,
+            )
 
     except requests.RequestException as exc:
 
@@ -141,7 +219,7 @@ def api_post(
                 _lang,
                 "api_unreachable",
             ).format(
-                url=API_URL,
+                url=base,
                 exc=exc,
             )
         )
@@ -160,6 +238,94 @@ def response_json_or_none(
     except ValueError:
 
         return None
+
+
+def _looks_like_html_document(
+    s: str,
+) -> bool:
+
+    if not s or not isinstance(
+        s,
+        str,
+    ):
+
+        return False
+
+    low = s.lstrip()[:20000].lower()
+
+    if "<!doctype html" in low or low.startswith("<html"):
+
+        return True
+
+    if "<html" not in low[:12000]:
+
+        return False
+
+    if "<body" in low[:24000]:
+
+        return True
+
+    if any(
+        marker in low
+        for marker in (
+            "<title>502",
+            "<title>503",
+            "<title>504",
+            "bad gateway",
+            "service unavailable",
+            "gateway time-out",
+            "roobert",
+            "render.com",
+        )
+    ):
+
+        return True
+
+    return False
+
+
+def _api_error_message(
+    response,
+) -> str:
+
+    code = getattr(
+        response,
+        "status_code",
+        "?",
+    )
+    body = (response.text or "").strip()
+    ctype = (
+        response.headers.get(
+            "Content-Type",
+            "",
+        )
+        or ""
+    ).lower()
+
+    if "text/html" in ctype or _looks_like_html_document(body):
+
+        _lang = st.session_state.get(
+            "lang",
+            "en",
+        )
+
+        return ui_text(
+            _lang,
+            "api_error_html",
+        ).format(
+            code=code,
+        )
+
+    if len(body) > 900:
+
+        return body[:900] + "…"
+
+    if body:
+
+        return body
+
+    return f"HTTP {code}"
+
 
 # ======================================================
 # PAGE CONFIG
@@ -351,7 +517,9 @@ with st.sidebar:
                     t("resume_uploaded_ok")
                 )
             else:
-                st.error(response.text)
+                st.error(
+                    _api_error_message(response)
+                )
 
     # ==================================================
     # LINKEDIN PDF
@@ -385,13 +553,33 @@ with st.sidebar:
                     t("linkedin_uploaded_ok")
                 )
             else:
-                st.error(response.text)
+                st.error(
+                    _api_error_message(response)
+                )
 
     st.markdown("---")
 
     # ==================================================
     # JOB DESCRIPTION
     # ==================================================
+
+    _jd_key = "job_description_input"
+    _jd_existing = st.session_state.get(_jd_key)
+
+    if isinstance(
+        _jd_existing,
+        str,
+    ) and _looks_like_html_document(_jd_existing):
+
+        st.session_state[_jd_key] = ""
+        st.session_state["has_job_description"] = False
+
+        if not st.session_state.get("_jd_bad_html_warned"):
+
+            st.session_state["_jd_bad_html_warned"] = True
+            st.warning(
+                t("jd_cleared_bad_html")
+            )
 
     st.subheader(
         t("target_job")
@@ -408,21 +596,31 @@ with st.sidebar:
         t("save_job_description"),
     ):
 
-        response = api_post(
-            "/save-job-description",
-            json={
-                "job_description": job_description
-            },
-        )
+        if _looks_like_html_document(job_description):
 
-        if response.status_code == 200:
-            st.session_state["has_job_description"] = True
-
-            st.success(
-                t("job_description_saved")
+            st.warning(
+                t("jd_reject_html")
             )
+
         else:
-            st.error(response.text)
+
+            response = api_post(
+                "/save-job-description",
+                json={
+                    "job_description": job_description
+                },
+            )
+
+            if response.status_code == 200:
+                st.session_state["has_job_description"] = True
+
+                st.success(
+                    t("job_description_saved")
+                )
+            else:
+                st.error(
+                    _api_error_message(response)
+                )
 
     with st.expander(
         t("cleanup_expander"),
@@ -442,7 +640,9 @@ with st.sidebar:
 
             if r.status_code != 200:
 
-                st.error(r.text)
+                st.error(
+                    _api_error_message(r)
+                )
 
             else:
 
@@ -476,7 +676,9 @@ with st.sidebar:
 
             if r.status_code != 200:
 
-                st.error(r.text)
+                st.error(
+                    _api_error_message(r)
+                )
 
             else:
 
@@ -536,7 +738,9 @@ with st.sidebar:
         response = api_post("/profile")
 
         if response.status_code != 200:
-            st.error(response.text)
+            st.error(
+                _api_error_message(response)
+            )
             st.stop()
 
         data = response_json_or_none(response)
@@ -570,7 +774,9 @@ with st.sidebar:
         response = api_post("/match")
 
         if response.status_code != 200:
-            st.error(response.text)
+            st.error(
+                _api_error_message(response)
+            )
             st.stop()
 
         data = response_json_or_none(response)
@@ -619,7 +825,9 @@ with st.sidebar:
         response = api_post("/resume")
 
         if response.status_code != 200:
-            st.error(response.text)
+            st.error(
+                _api_error_message(response)
+            )
             st.stop()
 
         data = response_json_or_none(response)
@@ -653,7 +861,9 @@ with st.sidebar:
         response = api_post("/cover-letter")
 
         if response.status_code != 200:
-            st.error(response.text)
+            st.error(
+                _api_error_message(response)
+            )
             st.stop()
 
         data = response_json_or_none(response)
@@ -676,6 +886,51 @@ with st.sidebar:
         )
 
         st.rerun()
+
+    with st.expander(
+        t("debug_api_expander"),
+        expanded=False,
+    ):
+
+        _probe_base = _resolve_api_url()
+
+        st.code(
+            _probe_base,
+            language=None,
+        )
+
+        st.caption(
+            t("debug_probe_hint")
+        )
+
+        if st.button(
+            t("debug_probe_health"),
+            key="sidebar_health_probe",
+        ):
+
+            try:
+
+                _hr = requests.get(
+                    f"{_probe_base}/health",
+                    timeout=(
+                        20,
+                        30,
+                    ),
+                )
+
+                st.caption(
+                    f"HTTP {_hr.status_code}"
+                )
+
+                st.text(
+                    (_hr.text or "")[:800]
+                )
+
+            except requests.RequestException as _exc:
+
+                st.caption(
+                    str(_exc)
+                )
 
 # ======================================================
 # DASHBOARD DATA
