@@ -13,6 +13,10 @@
 # Optional API: set CORS_ORIGINS to your UI URL (https://…onrender.com) if you use
 # browser clients or SHOW_API_DOCS=1 and open /docs from another origin.
 
+# If the API deploy fails on Render: open Logs and search for RuntimeError.
+# Most often: ENVIRONMENT=production but OPENAI_API_KEY or JOB_HUNTER_API_KEY
+# is missing — set both under the API service → Environment, then Manual Deploy.
+
 services:
   - type: web
     name: ai-job-hunter-api

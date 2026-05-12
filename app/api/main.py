@@ -100,7 +100,9 @@ async def lifespan(
                 "JOB_HUNTER_API_KEY must be set when "
                 "ENVIRONMENT=production or "
                 "REQUIRE_JOB_HUNTER_API_KEY=1. "
-                "Set a shared secret in .env for the API and Streamlit."
+                "On Render: Dashboard → ai-job-hunter-api → Environment → "
+                "add JOB_HUNTER_API_KEY (same value on the Streamlit service). "
+                "Locally: set it in .env."
             )
 
         if not os.getenv(
@@ -111,7 +113,9 @@ async def lifespan(
             raise RuntimeError(
                 "OPENAI_API_KEY must be set when "
                 "ENVIRONMENT=production or "
-                "REQUIRE_JOB_HUNTER_API_KEY=1."
+                "REQUIRE_JOB_HUNTER_API_KEY=1. "
+                "On Render: Dashboard → ai-job-hunter-api → Environment → "
+                "add OPENAI_API_KEY, then redeploy."
             )
 
     _openai = (
