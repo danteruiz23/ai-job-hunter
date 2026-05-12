@@ -302,7 +302,7 @@ with st.sidebar:
 
         st.rerun()
 
-    st.header(
+    st.subheader(
         t("upload_documents")
     )
 
@@ -380,13 +380,13 @@ with st.sidebar:
     # JOB DESCRIPTION
     # ==================================================
 
-    st.header(
+    st.subheader(
         t("target_job")
     )
 
     job_description = st.text_area(
         t("paste_job_description"),
-        height=380,
+        height=165,
         key="job_description_input",
         label_visibility="visible",
     )
@@ -497,7 +497,7 @@ with st.sidebar:
     # AI ACTIONS
     # ==================================================
 
-    st.header(
+    st.subheader(
         t("ai_actions")
     )
 

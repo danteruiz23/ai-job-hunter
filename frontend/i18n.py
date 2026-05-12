@@ -3,7 +3,10 @@
 STRINGS = {
     "en": {
         "page_title": "🚀 AI Job Hunter",
-        "page_caption": "AI-Powered Resume & Career Optimization Platform",
+        "page_caption": (
+            "**AI-Powered Resume & Career Optimization Platform**  \n"
+            "(By Dante Ruiz)"
+        ),
         "upload_documents": "📂 Upload Documents",
         "upload_resume": "Upload Resume",
         "resume_uploaded_ok": "Resume uploaded successfully",
@@ -93,7 +96,8 @@ STRINGS = {
     "es": {
         "page_title": "🚀 Cazador de empleos IA",
         "page_caption": (
-            "Plataforma de currículum y carrera asistida por IA"
+            "**Plataforma de currículum y carrera asistida por IA**  \n"
+            "(Por Dante Ruiz)"
         ),
         "upload_documents": "📂 Subir documentos",
         "upload_resume": "Subir currículum",

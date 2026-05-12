@@ -144,8 +144,9 @@ html, body {
 }
 
 section[data-testid="stSidebar"] {
-    width: 33.333vw !important;
-    min-width: 280px !important;
+    width: 28vw !important;
+    min-width: 260px !important;
+    max-width: 420px !important;
     flex-shrink: 0 !important;
     box-sizing: border-box !important;
     background: linear-gradient(
@@ -160,16 +161,34 @@ section[data-testid="stSidebar"] > div:first-child {
     width: 100% !important;
 }
 
-section[data-testid="stSidebar"] .stMarkdown,
-section[data-testid="stSidebar"] .stMarkdown p,
-section[data-testid="stSidebar"] .stMarkdown span {
-    color: __SIDEBAR_MD__ !important;
+/* Tighter vertical rhythm in sidebar */
+section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div {
+    gap: 0.35rem !important;
+}
+
+section[data-testid="stSidebar"] .element-container {
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
 }
 
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3 {
     color: __SIDEBAR_H__ !important;
+    font-size: 1.05rem !important;
+    line-height: 1.25 !important;
+    margin: 0.25rem 0 0.35rem 0 !important;
+    padding-top: 0 !important;
+}
+
+section[data-testid="stSidebar"] hr {
+    margin: 0.35rem 0 !important;
+}
+
+section[data-testid="stSidebar"] .stMarkdown,
+section[data-testid="stSidebar"] .stMarkdown p,
+section[data-testid="stSidebar"] .stMarkdown span {
+    color: __SIDEBAR_MD__ !important;
 }
 
 section[data-testid="stSidebar"] div:has([data-testid="stFileUploader"]) label {
@@ -209,12 +228,16 @@ section[data-testid="stSidebar"] [data-testid="stSelectbox"]:first-of-type [data
 }
 
 section[data-testid="stSidebar"] .stTextArea textarea {
-    min-height: 280px !important;
+    min-height: 72px !important;
+    max-height: 240px !important;
+    resize: vertical !important;
     background-color: var(--jd-bg) !important;
     color: var(--jd-text) !important;
     border: 2px solid var(--jd-border) !important;
-    border-radius: 12px !important;
+    border-radius: 10px !important;
     caret-color: var(--jd-caret) !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
 }
 
 section[data-testid="stSidebar"] .stTextArea textarea::placeholder {
@@ -242,7 +265,8 @@ section[data-testid="stSidebar"] [data-testid="stFileUploader"] {
 section[data-testid="stSidebar"] [data-testid="stFileUploader"] section {
     background-color: var(--sidebar-upload-bg) !important;
     border: 2px solid var(--sidebar-upload-border) !important;
-    border-radius: 12px !important;
+    border-radius: 10px !important;
+    padding: 6px 8px !important;
 }
 
 section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"],
@@ -345,6 +369,18 @@ p, li {
     line-height: 1.55 !important;
 }
 
+[data-testid="stCaptionContainer"] strong {
+    font-weight: 700 !important;
+    color: inherit !important;
+}
+
+[data-testid="stCaptionContainer"] p + p {
+    font-size: 0.92rem !important;
+    font-weight: 500 !important;
+    margin-top: 0.2rem !important;
+    opacity: 0.92 !important;
+}
+
 .stCodeBlock,
 pre,
 code,
@@ -379,6 +415,15 @@ code,
         var(--accent-hover),
         #7C3AED
     );
+}
+
+section[data-testid="stSidebar"] .stButton button {
+    height: 40px !important;
+    min-height: 40px !important;
+    font-size: 14px !important;
+    border-radius: 10px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 [data-testid="stFileUploader"] {
@@ -448,6 +493,13 @@ div[data-testid="stExpander"] details {
 
 [data-testid="stAlert"] * {
     color: inherit !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stAlert"] {
+    padding: 0.45rem 0.65rem !important;
+    font-size: 0.88rem !important;
+    margin-top: 0.15rem !important;
+    margin-bottom: 0.15rem !important;
 }
 
 /* Code block surface */
