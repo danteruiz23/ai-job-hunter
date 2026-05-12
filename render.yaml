@@ -10,7 +10,8 @@
 # Free web services cannot receive private network traffic (Render docs). Use the
 # public API URL for API_URL, not internal host:port.
 #
-# Optional API: CORS_ORIGINS if you need browser access to /docs from another origin.
+# Optional API: set CORS_ORIGINS to your UI URL (https://…onrender.com) if you use
+# browser clients or SHOW_API_DOCS=1 and open /docs from another origin.
 
 services:
   - type: web
@@ -36,6 +37,7 @@ services:
     plan: free
     region: oregon
     dockerfilePath: Dockerfile.streamlit
+    healthCheckPath: /
     envVars:
       - key: API_URL
         sync: false

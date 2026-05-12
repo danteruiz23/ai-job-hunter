@@ -139,15 +139,45 @@ async def lifespan(
         f"MAX_UPLOAD_MB: {MAX_UPLOAD_BYTES // (1024 * 1024)}; "
         f"MAX_JOB_DESCRIPTION_CHARS: {_MAX_JOB_DESCRIPTION_CHARS}; "
         f"RATE_LIMIT_DISABLED: "
-        f"{os.getenv('RATE_LIMIT_DISABLED', '0')!r}",
+        f"{os.getenv('RATE_LIMIT_DISABLED', '0')!r}; "
+        f"openapi_docs: {'on' if _enable_openapi else 'off'}",
         flush=True,
     )
 
     yield
 
 
+_env_prod = (
+    os.getenv(
+        "ENVIRONMENT",
+        "",
+    )
+    .strip()
+    .lower()
+    == "production"
+)
+
+_show_api_docs = (
+    os.getenv(
+        "SHOW_API_DOCS",
+        "",
+    )
+    .strip()
+    .lower()
+    in (
+        "1",
+        "true",
+        "yes",
+    )
+)
+
+_enable_openapi = (not _env_prod) or _show_api_docs
+
 app = FastAPI(
     lifespan=lifespan,
+    docs_url="/docs" if _enable_openapi else None,
+    redoc_url="/redoc" if _enable_openapi else None,
+    openapi_url="/openapi.json" if _enable_openapi else None,
 )
 
 # =========================================
