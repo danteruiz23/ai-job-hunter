@@ -144,9 +144,9 @@ html, body {
 }
 
 section[data-testid="stSidebar"] {
-    width: 28vw !important;
-    min-width: 260px !important;
-    max-width: 420px !important;
+    width: 33.6vw !important;
+    min-width: 312px !important;
+    max-width: 504px !important;
     flex-shrink: 0 !important;
     box-sizing: border-box !important;
     background: linear-gradient(
@@ -231,8 +231,8 @@ section[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
 
 
 section[data-testid="stSidebar"] .stTextArea textarea {
-    min-height: 72px !important;
-    max-height: 240px !important;
+    min-height: 220px !important;
+    max-height: min(68vh, 640px) !important;
     resize: vertical !important;
     background-color: var(--jd-bg) !important;
     color: var(--jd-text) !important;
@@ -268,8 +268,8 @@ section[data-testid="stSidebar"] [data-testid="stFileUploader"] {
 section[data-testid="stSidebar"] [data-testid="stFileUploader"] section {
     background-color: var(--sidebar-upload-bg) !important;
     border: 2px solid var(--sidebar-upload-border) !important;
-    border-radius: 10px !important;
-    padding: 6px 8px !important;
+    border-radius: 8px !important;
+    padding: 3px 5px !important;
 }
 
 section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"],
@@ -283,6 +283,17 @@ section[data-testid="stSidebar"] [data-testid="stFileUploader"] div[class*="file
     color: var(--sidebar-upload-text) !important;
 }
 
+section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
+    min-height: 2.5rem !important;
+    padding: 0.2rem 0.35rem !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] small,
+section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] [class*="caption"] {
+    font-size: 0.72rem !important;
+    line-height: 1.2 !important;
+}
+
 section[data-testid="stSidebar"] [data-testid="stFileUploader"] button {
     background: linear-gradient(
         135deg,
@@ -290,10 +301,13 @@ section[data-testid="stSidebar"] [data-testid="stFileUploader"] button {
         #8B5CF6
     ) !important;
     border: none !important;
-    border-radius: 12px !important;
+    border-radius: 10px !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     letter-spacing: 0.02em !important;
+    min-height: 32px !important;
+    padding: 0.2rem 0.65rem !important;
+    font-size: 0.82rem !important;
 }
 
 section[data-testid="stSidebar"] [data-testid="stFileUploader"] button:hover {
@@ -317,7 +331,9 @@ section[data-testid="stSidebar"] [data-testid="stFileUploader"] [class*="Caption
 section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stUploadedFile"] {
     background-color: var(--sidebar-upload-pill-bg) !important;
     border: 1px solid var(--sidebar-upload-border) !important;
-    border-radius: 12px !important;
+    border-radius: 8px !important;
+    padding: 0.2rem 0.35rem !important;
+    min-height: 0 !important;
 }
 
 section[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stUploadedFile"],

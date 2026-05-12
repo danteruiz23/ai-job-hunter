@@ -399,7 +399,7 @@ with st.sidebar:
 
     job_description = st.text_area(
         t("paste_job_description"),
-        height=165,
+        height=320,
         key="job_description_input",
         label_visibility="visible",
     )
