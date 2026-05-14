@@ -90,6 +90,7 @@ def _bucket_for_path(
         "/match",
         "/resume",
         "/cover-letter",
+        "/job-search",
     ):
 
         return "ai"

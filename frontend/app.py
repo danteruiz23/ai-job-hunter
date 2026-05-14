@@ -4,6 +4,7 @@ import time
 
 from pathlib import Path
 
+import pandas as pd
 import requests
 import streamlit as st
 from dotenv import load_dotenv
@@ -356,6 +357,9 @@ _defaults = {
     "linkedin_uploaded_name": "",
     "lang": "en",
     "theme": "light",
+    "job_search_results": [],
+    "job_search_messages": [],
+    "job_search_meta": None,
 }
 
 for _key, _value in _defaults.items():
@@ -887,6 +891,112 @@ with st.sidebar:
 
         st.rerun()
 
+    st.markdown("---")
+
+    st.subheader(
+        t("job_search_header")
+    )
+
+    st.caption(
+        t("job_search_hint")
+    )
+
+    _js_q = st.text_input(
+        t("job_search_query"),
+        key="job_search_query_input",
+    )
+
+    _js_loc = st.text_input(
+        t("job_search_location"),
+        key="job_search_location_input",
+    )
+
+    _js_urls = st.text_area(
+        t("job_search_urls"),
+        height=110,
+        key="job_search_urls_input",
+    )
+
+    _js_rss = st.text_area(
+        t("job_search_rss"),
+        height=90,
+        key="job_search_rss_input",
+    )
+
+    _js_n = st.number_input(
+        t("job_search_count"),
+        min_value=1,
+        max_value=25,
+        value=12,
+        step=1,
+        key="job_search_num_input",
+    )
+
+    if st.button(
+        t("job_search_run"),
+        disabled=not can_profile,
+        key="job_search_run_btn",
+    ):
+
+        _url_list = [
+            ln.strip()
+            for ln in (_js_urls or "").splitlines()
+            if ln.strip()
+        ][:35]
+
+        _rss_list = [
+            ln.strip()
+            for ln in (_js_rss or "").splitlines()
+            if ln.strip()
+        ][:10]
+
+        _payload = {
+            "query": (_js_q or "").strip() or None,
+            "location": (_js_loc or "").strip() or None,
+            "job_urls": _url_list,
+            "rss_feed_urls": _rss_list,
+            "num_results": int(_js_n),
+        }
+
+        response = api_post(
+            "/job-search",
+            json=_payload,
+        )
+
+        if response.status_code != 200:
+            st.error(
+                _api_error_message(response)
+            )
+            st.stop()
+
+        data = response_json_or_none(response)
+
+        if data is None:
+            st.error(
+                t("invalid_json")
+            )
+            st.stop()
+
+        st.session_state["job_search_results"] = data.get(
+            "results",
+            [],
+        ) or []
+
+        st.session_state["job_search_messages"] = data.get(
+            "messages",
+            [],
+        ) or []
+
+        st.session_state["job_search_meta"] = data.get(
+            "search",
+        )
+
+        st.success(
+            t("job_search_done")
+        )
+
+        st.rerun()
+
     with st.expander(
         t("debug_api_expander"),
         expanded=False,
@@ -1174,11 +1284,12 @@ st.markdown("<br>", unsafe_allow_html=True)
 # TABS
 # ======================================================
 
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     t("tab_profile"),
     t("tab_match"),
     t("tab_resume"),
     t("tab_cover"),
+    t("tab_job_search"),
 ])
 
 # PROFILE
@@ -1283,6 +1394,112 @@ with tab4:
             file_name="cover_letter.txt",
             mime="text/plain"
         )
+
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+# JOB SEARCH
+
+with tab5:
+
+    st.markdown(
+        '<div class="panel">',
+        unsafe_allow_html=True
+    )
+
+    _js_rows = st.session_state.get(
+        "job_search_results",
+        [],
+    )
+
+    if not _js_rows:
+
+        st.info(
+            t("empty_job_search")
+        )
+
+        _msgs_empty = st.session_state.get(
+            "job_search_messages",
+            [],
+        )
+
+        if _msgs_empty:
+
+            st.markdown(
+                f"**{t('job_search_messages')}**"
+            )
+
+            for _m in _msgs_empty:
+                st.caption(_m)
+
+    else:
+
+        _meta = st.session_state.get(
+            "job_search_meta",
+        ) or {}
+
+        st.caption(
+            t("job_search_used").format(
+                q=_meta.get(
+                    "query",
+                    "",
+                ),
+                loc=_meta.get(
+                    "location",
+                    "",
+                ),
+                serp=_meta.get(
+                    "serpapi_used",
+                    False,
+                ),
+            )
+        )
+
+        _df = pd.DataFrame(_js_rows)
+
+        _cols = [
+            c
+            for c in (
+                "match_score",
+                "title",
+                "company",
+                "source",
+                "one_liner",
+                "url",
+            )
+            if c in _df.columns
+        ]
+
+        st.dataframe(
+            _df[_cols],
+            column_config={
+                "url": st.column_config.LinkColumn(
+                    "URL",
+                ),
+                "match_score": st.column_config.NumberColumn(
+                    "Match %",
+                    format="%d",
+                ),
+            },
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        _msgs = st.session_state.get(
+            "job_search_messages",
+            [],
+        )
+
+        if _msgs:
+
+            st.markdown(
+                f"**{t('job_search_messages')}**"
+            )
+
+            for _m in _msgs:
+                st.caption(_m)
 
     st.markdown(
         '</div>',

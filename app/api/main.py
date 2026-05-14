@@ -53,6 +53,11 @@ from app.ai.cover_letter_generator import (
     generate_cover_letter
 )
 
+from app.services.job_search.runner import (
+    JobSearchRequest,
+    run_job_search,
+)
+
 # =========================================
 # LIMITS (env-tunable; used by lifespan log + job description model)
 # =========================================
@@ -650,3 +655,34 @@ def cover_letter(
     return {
         "cover_letter": result
     }
+
+
+# =========================================
+# JOB SEARCH (hybrid: SerpApi + URLs + RSS)
+# =========================================
+
+
+@app.post("/job-search")
+def job_search(
+    body: JobSearchRequest,
+    _openai: None = Depends(require_openai_key),
+):
+
+    candidate_data = load_candidate_data()
+
+    _require_non_empty(
+        candidate_data,
+        field_name="candidate_data",
+        message="Upload your resume and/or LinkedIn PDF first.",
+    )
+
+    try:
+        return run_job_search(
+            candidate_data,
+            body,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Job search failed: {e}",
+        )

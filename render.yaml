@@ -12,6 +12,9 @@
 # Free web services: use public API_URL for the UI (not internal host:port).
 #
 # Optional API: CORS_ORIGINS = UI URL if you use SHOW_API_DOCS=1 from another origin.
+#
+# Optional API: SERPAPI_API_KEY on the FastAPI service enables Google Jobs discovery
+# in POST /job-search (https://serpapi.com/manage-api-key).
 
 # If deploy fails: Logs → search RuntimeError (missing OPENAI) or OpenAIError (bad key).
 
@@ -29,6 +32,8 @@ services:
       - key: REQUIRE_JOB_HUNTER_API_KEY
         value: "1"
       - key: OPENAI_API_KEY
+        sync: false
+      - key: SERPAPI_API_KEY
         sync: false
       - key: JOB_HUNTER_API_KEY
         generateValue: true

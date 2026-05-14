@@ -113,6 +113,25 @@ STRINGS = {
             "That text looks like an HTML error page (not a job description). "
             "Paste the job posting text only, then save."
         ),
+        "job_search_header": "🔎 Job search",
+        "job_search_hint": (
+            "Find postings that fit your uploaded resume. "
+            "Set **SERPAPI_API_KEY** on the API for broad Google Jobs search; "
+            "without it, add job URLs or RSS feeds below."
+        ),
+        "job_search_query": "Override search keywords (optional)",
+        "job_search_location": "Override location (optional)",
+        "job_search_urls": "Job posting URLs (one per line)",
+        "job_search_rss": "RSS / Atom feed URLs (one per line)",
+        "job_search_count": "Max listings from Google Jobs",
+        "job_search_run": "Search & rank jobs",
+        "job_search_done": "Job search finished",
+        "job_search_used": "Search used: query=`{q}`, location=`{loc}`, SerpApi={serp}",
+        "job_search_messages": "Notes",
+        "empty_job_search": (
+            "Run **Search & rank jobs** in the sidebar. Results appear here."
+        ),
+        "tab_job_search": "🔎 Job search",
     },
     "es": {
         "page_title": "🚀 Cazador de empleos IA",
@@ -229,6 +248,26 @@ STRINGS = {
             "Ese texto parece una página HTML de error, no la descripción "
             "del puesto. Pega solo el texto del anuncio y guarda."
         ),
+        "job_search_header": "🔎 Búsqueda de empleos",
+        "job_search_hint": (
+            "Encuentra anuncios alineados con tu currículum subido. "
+            "Configura **SERPAPI_API_KEY** en la API para búsqueda amplia "
+            "(Google Jobs); sin clave, añade URLs de anuncios o feeds RSS."
+        ),
+        "job_search_query": "Palabras clave (opcional)",
+        "job_search_location": "Ubicación (opcional)",
+        "job_search_urls": "URLs de anuncios (una por línea)",
+        "job_search_rss": "URLs de feeds RSS/Atom (una por línea)",
+        "job_search_count": "Máximo de resultados Google Jobs",
+        "job_search_run": "Buscar y puntuar",
+        "job_search_done": "Búsqueda terminada",
+        "job_search_used": "Búsqueda: consulta=`{q}`, ubicación=`{loc}`, SerpApi={serp}",
+        "job_search_messages": "Notas",
+        "empty_job_search": (
+            "Usa **Buscar y puntuar** en la barra lateral. Los resultados "
+            "aparecen aquí."
+        ),
+        "tab_job_search": "🔎 Búsqueda",
     },
 }
 
