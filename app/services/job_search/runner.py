@@ -157,7 +157,10 @@ def run_job_search(
                     "serpapi_google_jobs",
                 )
         except Exception as exc:
-            messages.append(f"SerpApi Google Jobs failed: {exc}")
+            err = str(exc)
+            if _effective_key:
+                err = err.replace(_effective_key, "***")
+            messages.append(f"SerpApi Google Jobs failed: {err}")
     else:
         messages.append(
             "SerpApi disabled (set SERPAPI_API_KEY for broad Google Jobs search)."
