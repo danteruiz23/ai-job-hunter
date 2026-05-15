@@ -1557,8 +1557,8 @@ with tab5:
         _js_n = st.number_input(
             t("job_search_count"),
             min_value=1,
-            max_value=25,
-            value=12,
+            max_value=10,
+            value=5,
             step=1,
             key="job_search_num_input",
         )
