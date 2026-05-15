@@ -129,9 +129,22 @@ STRINGS = {
         "job_search_used": "Search used: query=`{q}`, location=`{loc}`, SerpApi={serp}",
         "job_search_messages": "Notes",
         "empty_job_search": (
-            "Run **Search & rank jobs** in the sidebar. Results appear here."
+            "Enter a search query above and click **Search & rank jobs** "
+            "to find matching positions."
         ),
         "tab_job_search": "🔎 Job search",
+        "job_search_advanced": "⚙️ Advanced options",
+        "job_search_advanced_hint": (
+            "Add specific job posting URLs or RSS/Atom feeds "
+            "for targeted results."
+        ),
+        "job_search_sort_label": "Sort by",
+        "job_search_sort_match_desc": "Match Score (High → Low)",
+        "job_search_sort_match_asc": "Match Score (Low → High)",
+        "job_search_sort_title": "Title (A → Z)",
+        "job_search_sort_company": "Company (A → Z)",
+        "job_search_results_count": "{count} jobs found",
+        "job_search_view_posting": "View Posting →",
     },
     "es": {
         "page_title": "🚀 Cazador de empleos IA",
@@ -264,10 +277,22 @@ STRINGS = {
         "job_search_used": "Búsqueda: consulta=`{q}`, ubicación=`{loc}`, SerpApi={serp}",
         "job_search_messages": "Notas",
         "empty_job_search": (
-            "Usa **Buscar y puntuar** en la barra lateral. Los resultados "
-            "aparecen aquí."
+            "Ingresa una búsqueda arriba y pulsa **Buscar y puntuar** "
+            "para encontrar posiciones que coincidan."
         ),
         "tab_job_search": "🔎 Búsqueda",
+        "job_search_advanced": "⚙️ Opciones avanzadas",
+        "job_search_advanced_hint": (
+            "Añade URLs de anuncios específicos o feeds RSS/Atom "
+            "para resultados más precisos."
+        ),
+        "job_search_sort_label": "Ordenar por",
+        "job_search_sort_match_desc": "Puntuación (Mayor → Menor)",
+        "job_search_sort_match_asc": "Puntuación (Menor → Mayor)",
+        "job_search_sort_title": "Título (A → Z)",
+        "job_search_sort_company": "Empresa (A → Z)",
+        "job_search_results_count": "{count} empleos encontrados",
+        "job_search_view_posting": "Ver anuncio →",
     },
 }
 

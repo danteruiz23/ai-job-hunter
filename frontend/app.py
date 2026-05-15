@@ -1,10 +1,10 @@
 import os
 import sys
+import html
 import time
 
 from pathlib import Path
 
-import pandas as pd
 import requests
 import streamlit as st
 from dotenv import load_dotenv
@@ -891,112 +891,6 @@ with st.sidebar:
 
         st.rerun()
 
-    st.markdown("---")
-
-    st.subheader(
-        t("job_search_header")
-    )
-
-    st.caption(
-        t("job_search_hint")
-    )
-
-    _js_q = st.text_input(
-        t("job_search_query"),
-        key="job_search_query_input",
-    )
-
-    _js_loc = st.text_input(
-        t("job_search_location"),
-        key="job_search_location_input",
-    )
-
-    _js_urls = st.text_area(
-        t("job_search_urls"),
-        height=110,
-        key="job_search_urls_input",
-    )
-
-    _js_rss = st.text_area(
-        t("job_search_rss"),
-        height=90,
-        key="job_search_rss_input",
-    )
-
-    _js_n = st.number_input(
-        t("job_search_count"),
-        min_value=1,
-        max_value=25,
-        value=12,
-        step=1,
-        key="job_search_num_input",
-    )
-
-    if st.button(
-        t("job_search_run"),
-        disabled=not can_profile,
-        key="job_search_run_btn",
-    ):
-
-        _url_list = [
-            ln.strip()
-            for ln in (_js_urls or "").splitlines()
-            if ln.strip()
-        ][:35]
-
-        _rss_list = [
-            ln.strip()
-            for ln in (_js_rss or "").splitlines()
-            if ln.strip()
-        ][:10]
-
-        _payload = {
-            "query": (_js_q or "").strip() or None,
-            "location": (_js_loc or "").strip() or None,
-            "job_urls": _url_list,
-            "rss_feed_urls": _rss_list,
-            "num_results": int(_js_n),
-        }
-
-        response = api_post(
-            "/job-search",
-            json=_payload,
-        )
-
-        if response.status_code != 200:
-            st.error(
-                _api_error_message(response)
-            )
-            st.stop()
-
-        data = response_json_or_none(response)
-
-        if data is None:
-            st.error(
-                t("invalid_json")
-            )
-            st.stop()
-
-        st.session_state["job_search_results"] = data.get(
-            "results",
-            [],
-        ) or []
-
-        st.session_state["job_search_messages"] = data.get(
-            "messages",
-            [],
-        ) or []
-
-        st.session_state["job_search_meta"] = data.get(
-            "search",
-        )
-
-        st.success(
-            t("job_search_done")
-        )
-
-        st.rerun()
-
     with st.expander(
         t("debug_api_expander"),
         expanded=False,
@@ -1281,6 +1175,194 @@ if missing_skills:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ======================================================
+# JOB CARD RENDERER
+# ======================================================
+
+
+def _render_job_card(
+    job: dict,
+    *,
+    ui_theme: str = "light",
+):
+
+    _title = html.escape(
+        job.get("title", "Untitled"),
+    )
+
+    _company = html.escape(
+        job.get("company", ""),
+    )
+
+    _score = max(
+        0,
+        min(
+            100,
+            int(job.get("match_score", 0)),
+        ),
+    )
+
+    _one_liner = html.escape(
+        job.get("one_liner", ""),
+    )
+
+    _source = job.get("source", "")
+
+    _url = job.get("url", "")
+
+    if _score >= 85:
+        _score_color = "#22C55E"
+        _score_bg = "rgba(34,197,94,0.12)"
+    elif _score >= 70:
+        _score_color = "#EAB308"
+        _score_bg = "rgba(234,179,8,0.12)"
+    else:
+        _score_color = "#EF4444"
+        _score_bg = "rgba(239,68,68,0.12)"
+
+    if ui_theme == "light":
+        _card_bg = "#ffffff"
+        _card_border = "#e2e8f0"
+        _title_c = "#0f172a"
+        _company_c = "#0d9488"
+        _text_c = "#475569"
+        _src_bg = "#f1f5f9"
+        _src_c = "#64748b"
+        _link_c = "#0d9488"
+        _shadow = "0 1px 8px rgba(13,148,136,0.06)"
+    else:
+        _card_bg = "#0F172A"
+        _card_border = "#1E293B"
+        _title_c = "#ffffff"
+        _company_c = "#14B8A6"
+        _text_c = "#CBD5E1"
+        _src_bg = "#1E293B"
+        _src_c = "#94a3b8"
+        _link_c = "#2DD4BF"
+        _shadow = "0 1px 8px rgba(20,184,166,0.08)"
+
+    _source_labels = {
+        "serpapi_google_jobs": "Google Jobs",
+        "user_url": "Direct URL",
+        "rss": "RSS Feed",
+    }
+
+    _src_label = html.escape(
+        _source_labels.get(
+            _source,
+            _source,
+        ),
+    )
+
+    _company_html = ""
+
+    if _company:
+
+        _company_html = (
+            f'<div style="'
+            f"font-size:14px;"
+            f"font-weight:600;"
+            f"color:{_company_c};"
+            f"margin-top:2px;"
+            f'">{_company}</div>'
+        )
+
+    _link_html = ""
+
+    if _url:
+
+        _safe_url = html.escape(
+            _url,
+            quote=True,
+        )
+
+        _link_text = t(
+            "job_search_view_posting",
+        )
+
+        _link_html = (
+            f'<a href="{_safe_url}" target="_blank"'
+            f' rel="noopener noreferrer" style="'
+            f"display:inline-flex;"
+            f"align-items:center;"
+            f"gap:4px;"
+            f"color:{_link_c};"
+            f"text-decoration:none;"
+            f"font-size:13px;"
+            f"font-weight:700;"
+            f'">{_link_text}</a>'
+        )
+
+    st.markdown(
+        f"""
+<div style="
+    background:{_card_bg};
+    border:1px solid {_card_border};
+    border-radius:14px;
+    padding:18px 20px;
+    margin-bottom:10px;
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+    box-shadow:{_shadow};
+    font-family:'Nunito',ui-sans-serif,system-ui,sans-serif;
+">
+    <div style="
+        min-width:54px;
+        height:54px;
+        border-radius:12px;
+        background:{_score_bg};
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-shrink:0;
+    ">
+        <span style="
+            color:{_score_color};
+            font-size:18px;
+            font-weight:800;
+            line-height:1;
+        ">{_score}%</span>
+    </div>
+    <div style="flex:1;min-width:0;">
+        <div style="
+            font-size:16px;
+            font-weight:700;
+            color:{_title_c};
+            line-height:1.3;
+        ">{_title}</div>
+        {_company_html}
+        <div style="
+            font-size:13.5px;
+            color:{_text_c};
+            margin-top:6px;
+            line-height:1.5;
+        ">{_one_liner}</div>
+        <div style="
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-top:8px;
+            flex-wrap:wrap;
+        ">
+            <span style="
+                font-size:11px;
+                font-weight:600;
+                color:{_src_c};
+                background:{_src_bg};
+                padding:2px 8px;
+                border-radius:6px;
+                letter-spacing:0.02em;
+            ">{_src_label}</span>
+            {_link_html}
+        </div>
+    </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+
+# ======================================================
 # TABS
 # ======================================================
 
@@ -1409,6 +1491,158 @@ with tab5:
         unsafe_allow_html=True
     )
 
+    # --------------------------------------------------
+    # SEARCH INPUTS (moved from sidebar)
+    # --------------------------------------------------
+
+    st.subheader(
+        t("job_search_header")
+    )
+
+    st.caption(
+        t("job_search_hint")
+    )
+
+    _search_col1, _search_col2 = st.columns(
+        [
+            2,
+            1,
+        ],
+    )
+
+    with _search_col1:
+
+        _js_q = st.text_input(
+            t("job_search_query"),
+            key="job_search_query_input",
+        )
+
+    with _search_col2:
+
+        _js_loc = st.text_input(
+            t("job_search_location"),
+            key="job_search_location_input",
+        )
+
+    with st.expander(
+        t("job_search_advanced"),
+        expanded=False,
+    ):
+
+        st.caption(
+            t("job_search_advanced_hint")
+        )
+
+        _js_urls = st.text_area(
+            t("job_search_urls"),
+            height=100,
+            key="job_search_urls_input",
+        )
+
+        _js_rss = st.text_area(
+            t("job_search_rss"),
+            height=80,
+            key="job_search_rss_input",
+        )
+
+    _action_col1, _action_col2 = st.columns(
+        [
+            1,
+            2,
+        ],
+    )
+
+    with _action_col1:
+
+        _js_n = st.number_input(
+            t("job_search_count"),
+            min_value=1,
+            max_value=25,
+            value=12,
+            step=1,
+            key="job_search_num_input",
+        )
+
+    with _action_col2:
+
+        st.markdown(
+            "<br>",
+            unsafe_allow_html=True,
+        )
+
+        _search_clicked = st.button(
+            t("job_search_run"),
+            disabled=not can_profile,
+            key="job_search_run_btn",
+        )
+
+    if _search_clicked:
+
+        _url_list = [
+            ln.strip()
+            for ln in (_js_urls or "").splitlines()
+            if ln.strip()
+        ][:35]
+
+        _rss_list = [
+            ln.strip()
+            for ln in (_js_rss or "").splitlines()
+            if ln.strip()
+        ][:10]
+
+        _payload = {
+            "query": (_js_q or "").strip() or None,
+            "location": (_js_loc or "").strip() or None,
+            "job_urls": _url_list,
+            "rss_feed_urls": _rss_list,
+            "num_results": int(_js_n),
+        }
+
+        response = api_post(
+            "/job-search",
+            json=_payload,
+        )
+
+        if response.status_code != 200:
+            st.error(
+                _api_error_message(response)
+            )
+            st.stop()
+
+        data = response_json_or_none(response)
+
+        if data is None:
+            st.error(
+                t("invalid_json")
+            )
+            st.stop()
+
+        st.session_state["job_search_results"] = data.get(
+            "results",
+            [],
+        ) or []
+
+        st.session_state["job_search_messages"] = data.get(
+            "messages",
+            [],
+        ) or []
+
+        st.session_state["job_search_meta"] = data.get(
+            "search",
+        )
+
+        st.success(
+            t("job_search_done")
+        )
+
+        st.rerun()
+
+    st.markdown("---")
+
+    # --------------------------------------------------
+    # RESULTS
+    # --------------------------------------------------
+
     _js_rows = st.session_state.get(
         "job_search_results",
         [],
@@ -1427,65 +1661,127 @@ with tab5:
 
         if _msgs_empty:
 
-            st.markdown(
-                f"**{t('job_search_messages')}**"
-            )
+            with st.expander(
+                t("job_search_messages"),
+                expanded=False,
+            ):
 
-            for _m in _msgs_empty:
-                st.caption(_m)
+                for _m in _msgs_empty:
+                    st.caption(_m)
 
     else:
 
-        _meta = st.session_state.get(
-            "job_search_meta",
-        ) or {}
-
-        st.caption(
-            t("job_search_used").format(
-                q=_meta.get(
-                    "query",
-                    "",
-                ),
-                loc=_meta.get(
-                    "location",
-                    "",
-                ),
-                serp=_meta.get(
-                    "serpapi_used",
-                    False,
-                ),
-            )
-        )
-
-        _df = pd.DataFrame(_js_rows)
-
-        _cols = [
-            c
-            for c in (
-                "match_score",
-                "title",
-                "company",
-                "source",
-                "one_liner",
-                "url",
-            )
-            if c in _df.columns
+        _sort_options = [
+            (
+                "match_desc",
+                t("job_search_sort_match_desc"),
+            ),
+            (
+                "match_asc",
+                t("job_search_sort_match_asc"),
+            ),
+            (
+                "title_asc",
+                t("job_search_sort_title"),
+            ),
+            (
+                "company_asc",
+                t("job_search_sort_company"),
+            ),
         ]
 
-        st.dataframe(
-            _df[_cols],
-            column_config={
-                "url": st.column_config.LinkColumn(
-                    "URL",
-                ),
-                "match_score": st.column_config.NumberColumn(
-                    "Match %",
-                    format="%d",
-                ),
-            },
-            use_container_width=True,
-            hide_index=True,
+        _results_hdr1, _results_hdr2 = st.columns(
+            [
+                2,
+                1,
+            ],
         )
+
+        with _results_hdr1:
+
+            st.caption(
+                t("job_search_results_count").format(
+                    count=len(_js_rows),
+                )
+            )
+
+            _meta = st.session_state.get(
+                "job_search_meta",
+            ) or {}
+
+            st.caption(
+                t("job_search_used").format(
+                    q=_meta.get(
+                        "query",
+                        "",
+                    ),
+                    loc=_meta.get(
+                        "location",
+                        "",
+                    ),
+                    serp=_meta.get(
+                        "serpapi_used",
+                        False,
+                    ),
+                )
+            )
+
+        with _results_hdr2:
+
+            _sort_sel = st.selectbox(
+                t("job_search_sort_label"),
+                options=[
+                    k for k, _v in _sort_options
+                ],
+                format_func=lambda k: dict(
+                    _sort_options,
+                )[k],
+                key="job_search_sort",
+            )
+
+        _sorted = list(_js_rows)
+
+        if _sort_sel == "match_desc":
+
+            _sorted.sort(
+                key=lambda r: r.get(
+                    "match_score",
+                    0,
+                ),
+                reverse=True,
+            )
+
+        elif _sort_sel == "match_asc":
+
+            _sorted.sort(
+                key=lambda r: r.get(
+                    "match_score",
+                    0,
+                ),
+            )
+
+        elif _sort_sel == "title_asc":
+
+            _sorted.sort(
+                key=lambda r: (
+                    r.get("title") or ""
+                ).lower(),
+            )
+
+        elif _sort_sel == "company_asc":
+
+            _sorted.sort(
+                key=lambda r: (
+                    r.get("company") or ""
+                ).lower(),
+            )
+
+        for _job in _sorted:
+
+            _render_job_card(
+                _job,
+                ui_theme=_ui_theme,
+            )
 
         _msgs = st.session_state.get(
             "job_search_messages",
@@ -1494,12 +1790,13 @@ with tab5:
 
         if _msgs:
 
-            st.markdown(
-                f"**{t('job_search_messages')}**"
-            )
+            with st.expander(
+                t("job_search_messages"),
+                expanded=False,
+            ):
 
-            for _m in _msgs:
-                st.caption(_m)
+                for _m in _msgs:
+                    st.caption(_m)
 
     st.markdown(
         '</div>',
