@@ -25,7 +25,8 @@ class JobSearchRequest(BaseModel):
     location: str | None = Field(default=None, max_length=200)
     job_urls: list[str] = Field(default_factory=list, max_length=35)
     rss_feed_urls: list[str] = Field(default_factory=list, max_length=10)
-    num_results: int = Field(default=12, ge=1, le=25)
+    num_results: int = Field(default=5, ge=1, le=10)
+    serpapi_api_key: str | None = Field(default=None, max_length=200)
 
     @model_validator(mode="after")
     def _normalize_lists(self) -> JobSearchRequest:
@@ -137,12 +138,13 @@ def run_job_search(
             )
         )
 
-    if _SERPAPI_KEY:
+    _effective_key = (body.serpapi_api_key or "").strip() or _SERPAPI_KEY
+    if _effective_key:
         try:
             serp_rows = fetch_google_jobs(
                 q=q,
                 location=loc,
-                api_key=_SERPAPI_KEY,
+                api_key=_effective_key,
                 max_results=body.num_results,
             )
             serpapi_used = True
