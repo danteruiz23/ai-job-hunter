@@ -20,9 +20,13 @@ from app.services.job_search.serpapi_google_jobs import fetch_google_jobs
 from app.services.job_search.url_safety import is_http_url_allowed
 
 
+_VALID_JOB_TYPES = {"", "remote", "hybrid", "on-site"}
+
+
 class JobSearchRequest(BaseModel):
     query: str | None = Field(default=None, max_length=400)
     location: str | None = Field(default=None, max_length=200)
+    job_type: str | None = Field(default=None, max_length=20)
     job_urls: list[str] = Field(default_factory=list, max_length=35)
     rss_feed_urls: list[str] = Field(default_factory=list, max_length=10)
     num_results: int = Field(default=5, ge=1, le=10)
@@ -44,6 +48,10 @@ class JobSearchRequest(BaseModel):
             self.query = self.query.strip() or None
         if self.location is not None:
             self.location = self.location.strip() or None
+        if self.job_type is not None:
+            self.job_type = self.job_type.strip().lower() or None
+            if self.job_type and self.job_type not in _VALID_JOB_TYPES:
+                self.job_type = None
         return self
 
 
@@ -103,7 +111,11 @@ def run_job_search(
     serpapi_used = False
 
     params = extract_job_search_params(candidate_data)
-    q = (body.query or params.get("search_query") or "").strip()
+    base_q = (params.get("search_query") or "").strip()
+    extra = (body.query or "").strip()
+    q = f"{base_q} {extra}".strip() if extra else base_q
+    if body.job_type:
+        q = f"{q} {body.job_type}"
     loc = (body.location or params.get("location") or "").strip()
 
     if not q:

@@ -115,12 +115,17 @@ STRINGS = {
         ),
         "job_search_header": "🔎 Job search",
         "job_search_hint": (
-            "Find postings that fit your uploaded resume. "
-            "Enter your **SerpApi key** below for broad Google Jobs search; "
+            "Searches based on your profile. "
+            "Add extra keywords or pick a job type to refine. "
+            "Enter your **SerpApi key** in Advanced for Google Jobs search; "
             "without it, add job URLs directly."
         ),
-        "job_search_query": "Override search keywords (optional)",
-        "job_search_location": "Override location (optional)",
+        "job_search_query": "Additional keywords (optional)",
+        "job_search_type": "Job type",
+        "job_type_all": "All",
+        "job_type_remote": "Remote",
+        "job_type_hybrid": "Hybrid",
+        "job_type_onsite": "On-site",
         "job_search_urls": "Job posting URLs (one per line)",
         "job_search_serpapi_key": "SerpApi API Key",
         "job_search_count": "Max listings from Google Jobs",
@@ -263,12 +268,17 @@ STRINGS = {
         ),
         "job_search_header": "🔎 Búsqueda de empleos",
         "job_search_hint": (
-            "Encuentra anuncios alineados con tu currículum subido. "
-            "Ingresa tu **clave SerpApi** abajo para búsqueda amplia "
-            "(Google Jobs); sin clave, añade URLs de anuncios directamente."
+            "Busca según tu perfil. "
+            "Añade palabras extra o elige tipo de empleo para afinar. "
+            "Ingresa tu **clave SerpApi** en Avanzado para Google Jobs; "
+            "sin clave, añade URLs de anuncios directamente."
         ),
-        "job_search_query": "Palabras clave (opcional)",
-        "job_search_location": "Ubicación (opcional)",
+        "job_search_query": "Palabras clave adicionales (opcional)",
+        "job_search_type": "Tipo de empleo",
+        "job_type_all": "Todos",
+        "job_type_remote": "Remoto",
+        "job_type_hybrid": "Híbrido",
+        "job_type_onsite": "Presencial",
         "job_search_urls": "URLs de anuncios (una por línea)",
         "job_search_serpapi_key": "Clave API de SerpApi",
         "job_search_count": "Máximo de resultados Google Jobs",

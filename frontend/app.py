@@ -1519,10 +1519,24 @@ with tab5:
 
     with _search_col2:
 
-        _js_loc = st.text_input(
-            t("job_search_location"),
-            key="job_search_location_input",
+        _job_type_options = [
+            t("job_type_all"),
+            t("job_type_remote"),
+            t("job_type_hybrid"),
+            t("job_type_onsite"),
+        ]
+        _job_type_values = ["", "remote", "hybrid", "on-site"]
+
+        _js_type_label = st.selectbox(
+            t("job_search_type"),
+            options=_job_type_options,
+            index=0,
+            key="job_search_type_input",
         )
+
+        _js_type = _job_type_values[
+            _job_type_options.index(_js_type_label)
+        ]
 
     with st.expander(
         t("job_search_advanced"),
@@ -1587,7 +1601,8 @@ with tab5:
 
         _payload = {
             "query": (_js_q or "").strip() or None,
-            "location": (_js_loc or "").strip() or None,
+            "location": None,
+            "job_type": _js_type or None,
             "job_urls": _url_list,
             "rss_feed_urls": [],
             "num_results": int(_js_n),
