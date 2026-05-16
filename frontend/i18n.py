@@ -116,13 +116,13 @@ STRINGS = {
         "job_search_header": "🔎 Job search",
         "job_search_hint": (
             "Find postings that fit your uploaded resume. "
-            "Set **SERPAPI_API_KEY** on the API for broad Google Jobs search; "
-            "without it, add job URLs or RSS feeds below."
+            "Enter your **SerpApi key** below for broad Google Jobs search; "
+            "without it, add job URLs directly."
         ),
         "job_search_query": "Override search keywords (optional)",
         "job_search_location": "Override location (optional)",
         "job_search_urls": "Job posting URLs (one per line)",
-        "job_search_rss": "RSS / Atom feed URLs (one per line)",
+        "job_search_serpapi_key": "SerpApi API Key",
         "job_search_count": "Max listings from Google Jobs",
         "job_search_run": "Search & rank jobs",
         "job_search_done": "Job search finished",
@@ -135,8 +135,8 @@ STRINGS = {
         "tab_job_search": "🔎 Job search",
         "job_search_advanced": "⚙️ Advanced options",
         "job_search_advanced_hint": (
-            "Add specific job posting URLs or RSS/Atom feeds "
-            "for targeted results."
+            "Add specific job posting URLs or your SerpApi key "
+            "for broader results."
         ),
         "job_search_sort_label": "Sort by",
         "job_search_sort_match_desc": "Match Score (High → Low)",
@@ -264,13 +264,13 @@ STRINGS = {
         "job_search_header": "🔎 Búsqueda de empleos",
         "job_search_hint": (
             "Encuentra anuncios alineados con tu currículum subido. "
-            "Configura **SERPAPI_API_KEY** en la API para búsqueda amplia "
-            "(Google Jobs); sin clave, añade URLs de anuncios o feeds RSS."
+            "Ingresa tu **clave SerpApi** abajo para búsqueda amplia "
+            "(Google Jobs); sin clave, añade URLs de anuncios directamente."
         ),
         "job_search_query": "Palabras clave (opcional)",
         "job_search_location": "Ubicación (opcional)",
         "job_search_urls": "URLs de anuncios (una por línea)",
-        "job_search_rss": "URLs de feeds RSS/Atom (una por línea)",
+        "job_search_serpapi_key": "Clave API de SerpApi",
         "job_search_count": "Máximo de resultados Google Jobs",
         "job_search_run": "Buscar y puntuar",
         "job_search_done": "Búsqueda terminada",
@@ -283,8 +283,8 @@ STRINGS = {
         "tab_job_search": "🔎 Búsqueda",
         "job_search_advanced": "⚙️ Opciones avanzadas",
         "job_search_advanced_hint": (
-            "Añade URLs de anuncios específicos o feeds RSS/Atom "
-            "para resultados más precisos."
+            "Añade URLs de anuncios específicos o tu clave SerpApi "
+            "para resultados más amplios."
         ),
         "job_search_sort_label": "Ordenar por",
         "job_search_sort_match_desc": "Puntuación (Mayor → Menor)",

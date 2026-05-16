@@ -1537,12 +1537,13 @@ with tab5:
             t("job_search_urls"),
             height=100,
             key="job_search_urls_input",
+            placeholder="https://www.linkedin.com/jobs/view/123456\nhttps://www.indeed.com/viewjob?jk=abc123",
         )
 
-        _js_rss = st.text_area(
-            t("job_search_rss"),
-            height=80,
-            key="job_search_rss_input",
+        _js_serpapi_key = st.text_input(
+            t("job_search_serpapi_key"),
+            type="password",
+            key="job_search_serpapi_key_input",
         )
 
     _action_col1, _action_col2 = st.columns(
@@ -1584,18 +1585,13 @@ with tab5:
             if ln.strip()
         ][:35]
 
-        _rss_list = [
-            ln.strip()
-            for ln in (_js_rss or "").splitlines()
-            if ln.strip()
-        ][:10]
-
         _payload = {
             "query": (_js_q or "").strip() or None,
             "location": (_js_loc or "").strip() or None,
             "job_urls": _url_list,
-            "rss_feed_urls": _rss_list,
+            "rss_feed_urls": [],
             "num_results": int(_js_n),
+            "serpapi_api_key": (_js_serpapi_key or "").strip() or None,
         }
 
         response = api_post(
