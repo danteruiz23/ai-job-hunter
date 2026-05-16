@@ -368,6 +368,7 @@ for _key, _value in _defaults.items():
 
         st.session_state[_key] = _value
 
+
 # ======================================================
 # CSS (dark / light via session theme)
 # ======================================================
@@ -1624,9 +1625,38 @@ with tab5:
 
     if not _js_rows:
 
-        st.info(
-            t("empty_job_search")
+        _meta_empty = st.session_state.get(
+            "job_search_meta",
         )
+
+        if _meta_empty:
+
+            st.warning(
+                t("job_search_no_results")
+            )
+
+            _eq = _meta_empty.get("query", "")
+            _eloc = _meta_empty.get("location", "") or "Not specified"
+            _eserp = _meta_empty.get("serpapi_used", False)
+            _esource = (
+                "Google Jobs (SerpApi)"
+                if _eserp
+                else "Direct URLs only"
+            )
+
+            st.markdown(
+                t("job_search_no_results_detail").format(
+                    q=_eq,
+                    loc=_eloc,
+                    source=_esource,
+                )
+            )
+
+        else:
+
+            st.info(
+                t("empty_job_search")
+            )
 
         _msgs_empty = st.session_state.get(
             "job_search_messages",
@@ -1637,7 +1667,7 @@ with tab5:
 
             with st.expander(
                 t("job_search_messages"),
-                expanded=False,
+                expanded=True,
             ):
 
                 for _m in _msgs_empty:
