@@ -133,6 +133,14 @@ STRINGS = {
             "Click **Find Jobs Based on My Profile** above "
             "to discover positions that match your expertise."
         ),
+        "job_search_no_results": (
+            "No jobs found matching your profile."
+        ),
+        "job_search_no_results_detail": (
+            "**Search query:** `{q}`  \n"
+            "**Location:** `{loc}`  \n"
+            "**Source:** {source}"
+        ),
         "tab_job_search": "🔎 Job search",
         "job_search_advanced": "⚙️ Advanced options",
         "job_search_advanced_hint": (
@@ -281,6 +289,14 @@ STRINGS = {
         "empty_job_search": (
             "Pulsa **Buscar empleos según mi perfil** arriba "
             "para descubrir posiciones que coincidan con tu experiencia."
+        ),
+        "job_search_no_results": (
+            "No se encontraron empleos que coincidan con tu perfil."
+        ),
+        "job_search_no_results_detail": (
+            "**Consulta de búsqueda:** `{q}`  \n"
+            "**Ubicación:** `{loc}`  \n"
+            "**Fuente:** {source}"
         ),
         "tab_job_search": "🔎 Búsqueda",
         "job_search_advanced": "⚙️ Opciones avanzadas",
