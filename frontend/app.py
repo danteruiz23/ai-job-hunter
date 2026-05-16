@@ -1292,74 +1292,73 @@ def _render_job_card(
             f'">{_link_text}</a>'
         )
 
-    st.markdown(
-        f"""
-<div style="
-    background:{_card_bg};
-    border:1px solid {_card_border};
-    border-radius:14px;
-    padding:18px 20px;
-    margin-bottom:10px;
-    display:flex;
-    align-items:flex-start;
-    gap:16px;
-    box-shadow:{_shadow};
-    font-family:'Nunito',ui-sans-serif,system-ui,sans-serif;
-">
-    <div style="
-        min-width:54px;
-        height:54px;
-        border-radius:12px;
-        background:{_score_bg};
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        flex-shrink:0;
-    ">
-        <span style="
-            color:{_score_color};
-            font-size:18px;
-            font-weight:800;
-            line-height:1;
-        ">{_score}%</span>
-    </div>
-    <div style="flex:1;min-width:0;">
-        <div style="
-            font-size:16px;
-            font-weight:700;
-            color:{_title_c};
-            line-height:1.3;
-        ">{_title}</div>
-        {_company_html}
-        <div style="
-            font-size:13.5px;
-            color:{_text_c};
-            margin-top:6px;
-            line-height:1.5;
-        ">{_one_liner}</div>
-        <div style="
-            display:flex;
-            align-items:center;
-            gap:10px;
-            margin-top:8px;
-            flex-wrap:wrap;
-        ">
-            <span style="
-                font-size:11px;
-                font-weight:600;
-                color:{_src_c};
-                background:{_src_bg};
-                padding:2px 8px;
-                border-radius:6px;
-                letter-spacing:0.02em;
-            ">{_src_label}</span>
-            {_link_html}
-        </div>
-    </div>
-</div>
-""",
-        unsafe_allow_html=True,
+    _card_html = (
+        f'<div style="'
+        f"background:{_card_bg};"
+        f"border:1px solid {_card_border};"
+        f"border-radius:14px;"
+        f"padding:18px 20px;"
+        f"margin-bottom:10px;"
+        f"display:flex;"
+        f"align-items:flex-start;"
+        f"gap:16px;"
+        f"box-shadow:{_shadow};"
+        f"font-family:'Nunito',ui-sans-serif,system-ui,sans-serif;"
+        f'">'
+        f'<div style="'
+        f"min-width:54px;"
+        f"height:54px;"
+        f"border-radius:12px;"
+        f"background:{_score_bg};"
+        f"display:flex;"
+        f"align-items:center;"
+        f"justify-content:center;"
+        f"flex-shrink:0;"
+        f'">'
+        f'<span style="'
+        f"color:{_score_color};"
+        f"font-size:18px;"
+        f"font-weight:800;"
+        f"line-height:1;"
+        f'">{_score}%</span>'
+        f"</div>"
+        f'<div style="flex:1;min-width:0;">'
+        f'<div style="'
+        f"font-size:16px;"
+        f"font-weight:700;"
+        f"color:{_title_c};"
+        f"line-height:1.3;"
+        f'">{_title}</div>'
+        f"{_company_html}"
+        f'<div style="'
+        f"font-size:13.5px;"
+        f"color:{_text_c};"
+        f"margin-top:6px;"
+        f"line-height:1.5;"
+        f'">{_one_liner}</div>'
+        f'<div style="'
+        f"display:flex;"
+        f"align-items:center;"
+        f"gap:10px;"
+        f"margin-top:8px;"
+        f"flex-wrap:wrap;"
+        f'">'
+        f'<span style="'
+        f"font-size:11px;"
+        f"font-weight:600;"
+        f"color:{_src_c};"
+        f"background:{_src_bg};"
+        f"padding:2px 8px;"
+        f"border-radius:6px;"
+        f"letter-spacing:0.02em;"
+        f'">{_src_label}</span>'
+        f"{_link_html}"
+        f"</div>"
+        f"</div>"
+        f"</div>"
     )
+
+    st.html(_card_html)
 
 
 # ======================================================
