@@ -115,27 +115,23 @@ STRINGS = {
         ),
         "job_search_header": "🔎 Job search",
         "job_search_hint": (
-            "Searches based on your profile. "
-            "Add extra keywords or pick a job type to refine. "
-            "Enter your **SerpApi key** in Advanced for Google Jobs search; "
-            "without it, add job URLs directly."
+            "Finds jobs that match your resume and LinkedIn expertise. "
+            "Upload your documents, then click the button below."
         ),
-        "job_search_query": "Additional keywords (optional)",
-        "job_search_type": "Job type",
-        "job_type_all": "All",
-        "job_type_remote": "Remote",
-        "job_type_hybrid": "Hybrid",
-        "job_type_onsite": "On-site",
+        "job_search_upload_first": (
+            "Upload your resume or LinkedIn PDF first "
+            "so we can find jobs based on your expertise."
+        ),
         "job_search_urls": "Job posting URLs (one per line)",
         "job_search_serpapi_key": "SerpApi API Key",
         "job_search_count": "Max listings from Google Jobs",
-        "job_search_run": "Search & rank jobs",
+        "job_search_run": "🔍 Find Jobs Based on My Profile",
         "job_search_done": "Job search finished",
         "job_search_used": "Search used: query=`{q}`, location=`{loc}`, SerpApi={serp}",
         "job_search_messages": "Notes",
         "empty_job_search": (
-            "Enter a search query above and click **Search & rank jobs** "
-            "to find matching positions."
+            "Click **Find Jobs Based on My Profile** above "
+            "to discover positions that match your expertise."
         ),
         "tab_job_search": "🔎 Job search",
         "job_search_advanced": "⚙️ Advanced options",
@@ -149,7 +145,7 @@ STRINGS = {
         "job_search_sort_title": "Title (A → Z)",
         "job_search_sort_company": "Company (A → Z)",
         "job_search_results_count": "{count} jobs found",
-        "job_search_view_posting": "View Posting →",
+        "job_search_apply": "Apply →",
     },
     "es": {
         "page_title": "🚀 Cazador de empleos IA",
@@ -268,27 +264,23 @@ STRINGS = {
         ),
         "job_search_header": "🔎 Búsqueda de empleos",
         "job_search_hint": (
-            "Busca según tu perfil. "
-            "Añade palabras extra o elige tipo de empleo para afinar. "
-            "Ingresa tu **clave SerpApi** en Avanzado para Google Jobs; "
-            "sin clave, añade URLs de anuncios directamente."
+            "Encuentra empleos que coincidan con tu currículum y "
+            "experiencia de LinkedIn. Sube tus documentos y pulsa el botón."
         ),
-        "job_search_query": "Palabras clave adicionales (opcional)",
-        "job_search_type": "Tipo de empleo",
-        "job_type_all": "Todos",
-        "job_type_remote": "Remoto",
-        "job_type_hybrid": "Híbrido",
-        "job_type_onsite": "Presencial",
+        "job_search_upload_first": (
+            "Sube tu currículum o PDF de LinkedIn primero "
+            "para buscar empleos según tu experiencia."
+        ),
         "job_search_urls": "URLs de anuncios (una por línea)",
         "job_search_serpapi_key": "Clave API de SerpApi",
         "job_search_count": "Máximo de resultados Google Jobs",
-        "job_search_run": "Buscar y puntuar",
+        "job_search_run": "🔍 Buscar empleos según mi perfil",
         "job_search_done": "Búsqueda terminada",
         "job_search_used": "Búsqueda: consulta=`{q}`, ubicación=`{loc}`, SerpApi={serp}",
         "job_search_messages": "Notas",
         "empty_job_search": (
-            "Ingresa una búsqueda arriba y pulsa **Buscar y puntuar** "
-            "para encontrar posiciones que coincidan."
+            "Pulsa **Buscar empleos según mi perfil** arriba "
+            "para descubrir posiciones que coincidan con tu experiencia."
         ),
         "tab_job_search": "🔎 Búsqueda",
         "job_search_advanced": "⚙️ Opciones avanzadas",
@@ -302,7 +294,7 @@ STRINGS = {
         "job_search_sort_title": "Título (A → Z)",
         "job_search_sort_company": "Empresa (A → Z)",
         "job_search_results_count": "{count} empleos encontrados",
-        "job_search_view_posting": "Ver anuncio →",
+        "job_search_apply": "Aplicar →",
     },
 }
 

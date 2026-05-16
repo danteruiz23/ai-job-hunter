@@ -1276,7 +1276,7 @@ def _render_job_card(
         )
 
         _link_text = t(
-            "job_search_view_posting",
+            "job_search_apply",
         )
 
         _link_html = (
@@ -1285,10 +1285,13 @@ def _render_job_card(
             f"display:inline-flex;"
             f"align-items:center;"
             f"gap:4px;"
-            f"color:{_link_c};"
+            f"color:#fff;"
+            f"background:{_link_c};"
             f"text-decoration:none;"
             f"font-size:13px;"
             f"font-weight:700;"
+            f"padding:4px 12px;"
+            f"border-radius:6px;"
             f'">{_link_text}</a>'
         )
 
@@ -1491,7 +1494,7 @@ with tab5:
     )
 
     # --------------------------------------------------
-    # SEARCH INPUTS (moved from sidebar)
+    # PROFILE-DRIVEN SEARCH
     # --------------------------------------------------
 
     st.subheader(
@@ -1502,40 +1505,19 @@ with tab5:
         t("job_search_hint")
     )
 
-    _search_col1, _search_col2 = st.columns(
-        [
-            2,
-            1,
-        ],
+    if not can_profile:
+
+        st.warning(
+            t("job_search_upload_first")
+        )
+
+    _search_clicked = st.button(
+        t("job_search_run"),
+        disabled=not can_profile,
+        key="job_search_run_btn",
+        use_container_width=True,
+        type="primary",
     )
-
-    with _search_col1:
-
-        _js_q = st.text_input(
-            t("job_search_query"),
-            key="job_search_query_input",
-        )
-
-    with _search_col2:
-
-        _job_type_options = [
-            t("job_type_all"),
-            t("job_type_remote"),
-            t("job_type_hybrid"),
-            t("job_type_onsite"),
-        ]
-        _job_type_values = ["", "remote", "hybrid", "on-site"]
-
-        _js_type_label = st.selectbox(
-            t("job_search_type"),
-            options=_job_type_options,
-            index=0,
-            key="job_search_type_input",
-        )
-
-        _js_type = _job_type_values[
-            _job_type_options.index(_js_type_label)
-        ]
 
     with st.expander(
         t("job_search_advanced"),
@@ -1544,6 +1526,15 @@ with tab5:
 
         st.caption(
             t("job_search_advanced_hint")
+        )
+
+        _js_n = st.number_input(
+            t("job_search_count"),
+            min_value=1,
+            max_value=10,
+            value=5,
+            step=1,
+            key="job_search_num_input",
         )
 
         _js_urls = st.text_area(
@@ -1559,53 +1550,26 @@ with tab5:
             key="job_search_serpapi_key_input",
         )
 
-    _action_col1, _action_col2 = st.columns(
-        [
-            1,
-            2,
-        ],
-    )
-
-    with _action_col1:
-
-        _js_n = st.number_input(
-            t("job_search_count"),
-            min_value=1,
-            max_value=10,
-            value=5,
-            step=1,
-            key="job_search_num_input",
-        )
-
-    with _action_col2:
-
-        st.markdown(
-            "<br>",
-            unsafe_allow_html=True,
-        )
-
-        _search_clicked = st.button(
-            t("job_search_run"),
-            disabled=not can_profile,
-            key="job_search_run_btn",
-        )
-
     if _search_clicked:
 
         _url_list = [
             ln.strip()
-            for ln in (_js_urls or "").splitlines()
+            for ln in (
+                st.session_state.get("job_search_urls_input") or ""
+            ).splitlines()
             if ln.strip()
         ][:35]
 
         _payload = {
-            "query": (_js_q or "").strip() or None,
+            "query": None,
             "location": None,
-            "job_type": _js_type or None,
+            "job_type": None,
             "job_urls": _url_list,
             "rss_feed_urls": [],
             "num_results": int(_js_n),
-            "serpapi_api_key": (_js_serpapi_key or "").strip() or None,
+            "serpapi_api_key": (
+                st.session_state.get("job_search_serpapi_key_input") or ""
+            ).strip() or None,
         }
 
         response = api_post(
