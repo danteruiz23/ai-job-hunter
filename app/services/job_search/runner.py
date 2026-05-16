@@ -114,12 +114,12 @@ def run_job_search(
     base_q = (params.get("search_query") or "").strip()
     extra = (body.query or "").strip()
     q = f"{base_q} {extra}".strip() if extra else base_q
-    if body.job_type:
-        q = f"{q} {body.job_type}"
     loc = (body.location or params.get("location") or "").strip()
 
     if not q:
         q = "jobs"
+    if body.job_type:
+        q = f"{q} {body.job_type}"
 
     listings: list[_Listing] = []
     seen: set[str] = set()
