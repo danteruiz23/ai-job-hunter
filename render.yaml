@@ -35,8 +35,6 @@ services:
         sync: false
       - key: SERPAPI_API_KEY
         sync: false
-      - key: JOB_HUNTER_API_KEY
-        generateValue: true
 
   - type: web
     name: ai-job-hunter-ui
@@ -48,8 +46,3 @@ services:
     envVars:
       - key: API_URL
         value: https://ai-job-hunter-api.onrender.com
-      - key: JOB_HUNTER_API_KEY
-        fromService:
-          name: ai-job-hunter-api
-          type: web
-          envVarKey: JOB_HUNTER_API_KEY
