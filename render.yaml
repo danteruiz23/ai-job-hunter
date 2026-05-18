@@ -30,7 +30,7 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: REQUIRE_JOB_HUNTER_API_KEY
-        value: "1"
+        value: "0"
       - key: OPENAI_API_KEY
         sync: false
       - key: SERPAPI_API_KEY
