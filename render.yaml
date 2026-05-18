@@ -28,7 +28,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: ENVIRONMENT
-        value: production
+        value: development
       - key: REQUIRE_JOB_HUNTER_API_KEY
         value: "0"
       - key: OPENAI_API_KEY
