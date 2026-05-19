@@ -1,0 +1,5 @@
+[lint]
+ignore = [
+    "E402",  # module-level import not at top (frontend uses sys.path before imports)
+    "E722",  # bare except (pre-existing in load_job_description)
+]
