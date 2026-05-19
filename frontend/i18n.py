@@ -142,6 +142,20 @@ STRINGS = {
             "**Source:** {source}"
         ),
         "tab_job_search": "🔎 Job search",
+        "job_search_role_label": "Role / Search query",
+        "job_search_role_hint": (
+            "Leave blank to auto-detect from your resume, "
+            "or type a role like 'AI Engineer'."
+        ),
+        "job_search_location_label": "Location",
+        "job_search_location_hint": (
+            "e.g. Berlin, European Union, Remote"
+        ),
+        "job_search_work_type_label": "Work type",
+        "job_search_work_type_any": "Any",
+        "job_search_work_type_remote": "Remote",
+        "job_search_work_type_hybrid": "Hybrid",
+        "job_search_work_type_onsite": "On-site",
         "job_search_advanced": "⚙️ Advanced options",
         "job_search_advanced_hint": (
             "Add specific job posting URLs or your SerpApi key "
@@ -299,6 +313,20 @@ STRINGS = {
             "**Fuente:** {source}"
         ),
         "tab_job_search": "🔎 Búsqueda",
+        "job_search_role_label": "Rol / Consulta de búsqueda",
+        "job_search_role_hint": (
+            "Déjalo vacío para detectar automáticamente desde tu "
+            "currículum, o escribe un rol como 'Ingeniero IA'."
+        ),
+        "job_search_location_label": "Ubicación",
+        "job_search_location_hint": (
+            "p. ej. Berlín, Unión Europea, Remoto"
+        ),
+        "job_search_work_type_label": "Tipo de trabajo",
+        "job_search_work_type_any": "Cualquiera",
+        "job_search_work_type_remote": "Remoto",
+        "job_search_work_type_hybrid": "Híbrido",
+        "job_search_work_type_onsite": "Presencial",
         "job_search_advanced": "⚙️ Opciones avanzadas",
         "job_search_advanced_hint": (
             "Añade URLs de anuncios específicos o tu clave SerpApi "
