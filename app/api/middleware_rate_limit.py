@@ -214,8 +214,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 return JSONResponse(
                     {
                         "detail": (
-                            "Rate limit exceeded. "
-                            "Slow down and try again shortly."
+                            "Trial limit reached. "
+                            "Please contact the administrator "
+                            "to upgrade your access."
                         ),
                     },
                     status_code=429,

@@ -7,9 +7,10 @@
 #   UI:   API_URL is set below to match name: ai-job-hunter-api (override if you
 #         rename the API service or use preview URLs).
 #
-# API auth is disabled (REQUIRE_JOB_HUNTER_API_KEY=0). Rate limiting protects
-# against abuse: 10 AI calls/min, 15 uploads/min, 60 general/min per client.
-# To re-enable auth: set REQUIRE_JOB_HUNTER_API_KEY=1 and add JOB_HUNTER_API_KEY.
+# API auth is disabled (REQUIRE_JOB_HUNTER_API_KEY=0). Trial mode allows
+# 5 requests per endpoint per minute. After that, users see a trial-expired
+# message and must contact the admin. To re-enable auth: set
+# REQUIRE_JOB_HUNTER_API_KEY=1 and add JOB_HUNTER_API_KEY.
 #
 # Free web services: use public API_URL for the UI (not internal host:port).
 #
@@ -42,11 +43,11 @@ services:
       - key: RATE_LIMIT_WINDOW_SEC
         value: "60"
       - key: RATE_LIMIT_DEFAULT
-        value: "60"
+        value: "5"
       - key: RATE_LIMIT_UPLOAD
-        value: "15"
+        value: "5"
       - key: RATE_LIMIT_AI
-        value: "10"
+        value: "5"
 
   - type: web
     name: ai-job-hunter-ui-koku
