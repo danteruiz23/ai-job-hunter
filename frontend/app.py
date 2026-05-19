@@ -1512,6 +1512,44 @@ with tab5:
             t("job_search_upload_first")
         )
 
+    # --------------------------------------------------
+    # FILTERS (Role, Location, Work Type)
+    # --------------------------------------------------
+
+    _filter_col1, _filter_col2 = st.columns(2)
+
+    with _filter_col1:
+
+        _js_query = st.text_input(
+            t("job_search_role_label"),
+            key="job_search_role_input",
+            placeholder="AI Engineer, Data Scientist …",
+            help=t("job_search_role_hint"),
+        )
+
+    with _filter_col2:
+
+        _js_location = st.text_input(
+            t("job_search_location_label"),
+            key="job_search_location_input",
+            placeholder="Berlin, EU, Remote …",
+            help=t("job_search_location_hint"),
+        )
+
+    _work_type_options = [
+        ("", t("job_search_work_type_any")),
+        ("remote", t("job_search_work_type_remote")),
+        ("hybrid", t("job_search_work_type_hybrid")),
+        ("on-site", t("job_search_work_type_onsite")),
+    ]
+
+    _js_work_type = st.selectbox(
+        t("job_search_work_type_label"),
+        options=[k for k, _v in _work_type_options],
+        format_func=lambda k: dict(_work_type_options)[k],
+        key="job_search_work_type_input",
+    )
+
     _search_clicked = st.button(
         t("job_search_run"),
         disabled=not can_profile,
@@ -1561,10 +1599,22 @@ with tab5:
             if ln.strip()
         ][:35]
 
+        _user_query = (
+            st.session_state.get("job_search_role_input") or ""
+        ).strip() or None
+
+        _user_location = (
+            st.session_state.get("job_search_location_input") or ""
+        ).strip() or None
+
+        _user_work_type = (
+            st.session_state.get("job_search_work_type_input") or ""
+        ).strip() or None
+
         _payload = {
-            "query": None,
-            "location": None,
-            "job_type": None,
+            "query": _user_query,
+            "location": _user_location,
+            "job_type": _user_work_type,
             "job_urls": _url_list,
             "rss_feed_urls": [],
             "num_results": int(_js_n),
