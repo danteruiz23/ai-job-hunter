@@ -1523,7 +1523,7 @@ with tab5:
         _js_query = st.text_input(
             t("job_search_role_label"),
             key="job_search_role_input",
-            placeholder="AI Engineer, Data Scientist …",
+            placeholder=t("job_search_role_placeholder"),
             help=t("job_search_role_hint"),
         )
 
@@ -1532,7 +1532,7 @@ with tab5:
         _js_location = st.text_input(
             t("job_search_location_label"),
             key="job_search_location_input",
-            placeholder="Berlin, EU, Remote …",
+            placeholder=t("job_search_location_placeholder"),
             help=t("job_search_location_hint"),
         )
 

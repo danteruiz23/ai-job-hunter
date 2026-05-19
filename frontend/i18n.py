@@ -147,10 +147,12 @@ STRINGS = {
             "Leave blank to auto-detect from your resume, "
             "or type a role like 'AI Engineer'."
         ),
+        "job_search_role_placeholder": "AI Engineer, Data Scientist\u2009\u2026",
         "job_search_location_label": "Location",
         "job_search_location_hint": (
             "e.g. Berlin, European Union, Remote"
         ),
+        "job_search_location_placeholder": "Berlin, EU, Remote\u2009\u2026",
         "job_search_work_type_label": "Work type",
         "job_search_work_type_any": "Any",
         "job_search_work_type_remote": "Remote",
@@ -318,10 +320,12 @@ STRINGS = {
             "Déjalo vacío para detectar automáticamente desde tu "
             "currículum, o escribe un rol como 'Ingeniero IA'."
         ),
+        "job_search_role_placeholder": "Ingeniero IA, Científico de datos\u2009\u2026",
         "job_search_location_label": "Ubicación",
         "job_search_location_hint": (
             "p. ej. Berlín, Unión Europea, Remoto"
         ),
+        "job_search_location_placeholder": "Berlín, UE, Remoto\u2009\u2026",
         "job_search_work_type_label": "Tipo de trabajo",
         "job_search_work_type_any": "Cualquiera",
         "job_search_work_type_remote": "Remoto",

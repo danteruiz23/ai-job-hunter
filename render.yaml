@@ -7,7 +7,10 @@
 #   UI:   API_URL is set below to match name: ai-job-hunter-api (override if you
 #         rename the API service or use preview URLs).
 #
-# JOB_HUNTER_API_KEY is auto-generated on the API and copied to the UI (same value).
+# API auth is disabled (REQUIRE_JOB_HUNTER_API_KEY=0). Trial mode allows
+# 5 requests per endpoint per minute. After that, users see a trial-expired
+# message and must contact the admin. To re-enable auth: set
+# REQUIRE_JOB_HUNTER_API_KEY=1 and add JOB_HUNTER_API_KEY.
 #
 # Free web services: use public API_URL for the UI (not internal host:port).
 #
@@ -28,18 +31,26 @@ services:
     healthCheckPath: /health
     envVars:
       - key: ENVIRONMENT
-        value: production
+        value: development
       - key: REQUIRE_JOB_HUNTER_API_KEY
-        value: "1"
+        value: "0"
       - key: OPENAI_API_KEY
         sync: false
       - key: SERPAPI_API_KEY
         sync: false
-      - key: JOB_HUNTER_API_KEY
-        generateValue: true
+      - key: RATE_LIMIT_DISABLED
+        value: "0"
+      - key: RATE_LIMIT_WINDOW_SEC
+        value: "60"
+      - key: RATE_LIMIT_DEFAULT
+        value: "5"
+      - key: RATE_LIMIT_UPLOAD
+        value: "5"
+      - key: RATE_LIMIT_AI
+        value: "5"
 
   - type: web
-    name: ai-job-hunter-ui
+    name: ai-job-hunter-ui-koku
     runtime: docker
     plan: free
     region: oregon
@@ -48,8 +59,5 @@ services:
     envVars:
       - key: API_URL
         value: https://ai-job-hunter-api.onrender.com
-      - key: JOB_HUNTER_API_KEY
-        fromService:
-          name: ai-job-hunter-api
-          type: web
-          envVarKey: JOB_HUNTER_API_KEY
+      - key: API_CONNECT_TIMEOUT
+        value: "60"
